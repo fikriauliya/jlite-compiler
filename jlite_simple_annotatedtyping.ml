@@ -113,15 +113,15 @@ let rec type_check_expr
 		| IntLiteral v -> (IntT, e)
 		| StringLiteral v -> (StringT, e)
 		| ThisWord -> 
-			((ObjectT classid), TypedExp (e,(ObjectT classid)))
+			((ObjectT classid), TypedExp (e, (ObjectT classid)))
 		| NullWord -> 
-			((ObjectT "null") , TypedExp (e,(ObjectT "null")))
+			((ObjectT "null") , TypedExp (e, (ObjectT "null")))
 		| Var v -> 
 			let (vtyp, vid) =(find_var_decl_type env v) in
 			(vtyp, TypedExp (Var vid, vtyp)) 
 		| ObjectCreate c -> 
 			if (exists_class_decl p c) 
-			then ((ObjectT c), TypedExp(e,(ObjectT c)))
+			then ((ObjectT c), TypedExp(e, (ObjectT c)))
 			else (Unknown, e)
 		| _ -> (Unknown, e) 
 		 (* Handle other expresion types ---- TODO ---- *)
@@ -197,7 +197,7 @@ let rec type_check_stmts
 		| _,_ ->  
 			let (rettype, stmts) = 
 				(type_check_stmts p env classid mthd tail_lst newrettype) in
-				(rettype,(newstmt::stmts))
+				(rettype, (newstmt::stmts))
   
 (* TypeCheck a JLite Method Declaration *)
 let type_check_mthd_decl p env cname m : md_decl = 
@@ -257,7 +257,8 @@ let type_check_jlite_program (p:jlite_program) : jlite_program =
 	(* functions *)
 
 	let type_check_class_main  ((cname, mmthd):class_main ) = 
-		(cname,(type_check_mthd_decl p [] cname mmthd )) in
+		(cname, (type_check_mthd_decl p [] cname mmthd )) in
+
 	let rec type_check_class_decl ((cname, cvars, cmthds):class_decl) =
 		(* TypeCheck field declarations *)
 		let (retval, errmsg) = (type_check_var_decl_list p cvars) in
