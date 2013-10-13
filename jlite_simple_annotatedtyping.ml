@@ -69,8 +69,7 @@ let rec create_scoped_var_decls
 let rec type_check_var_decl_list
 	(p: jlite_program) 
 	(vlst: var_decl list) =
-	let rec helper 
-		(vlst: var_decl list) :jlite_type list =
+	let rec helper (vlst: var_decl list) :jlite_type list =
 		match vlst with
 		| (typ, vid)::[] -> 
 			begin
