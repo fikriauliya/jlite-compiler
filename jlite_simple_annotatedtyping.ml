@@ -7,6 +7,11 @@
 (* ===================================================== *)
 
 open Jlite_structs
+open Printf
+
+let println line = begin
+	printf "%s\n" line;
+end
 
 (* Compare two variable ids *) 	
 let compare_var_ids v1 v2 =
@@ -38,8 +43,8 @@ let exists_var_id
 	in (List.exists is_eq_id vlst) 	
 
 (* Check if the declaration of a class exists *) 			  
-let exists_class_decl 
-	((cm, clst): jlite_program) (cid:class_name) =
+(* OK *)
+let exists_class_decl ((cm, clst): jlite_program) (cid:class_name) =
 	(List.exists 
 		(fun (cname, cvars, cmtd) ->
 			(String.compare cname cid) == 0)
@@ -68,27 +73,42 @@ let rec create_scoped_var_decls
 *)  
 let rec type_check_var_decl_list
 	(p: jlite_program) 
-	(vlst: var_decl list) =
+	(vlst: var_decl list) = begin
+
+	println "type_check_var_decl_list";
+	println ("var_decl: " ^ (string_of_list vlst string_of_var_decl ";\n" ));
+
 	let rec helper (vlst: var_decl list) :jlite_type list =
 		match vlst with
-		| (typ, vid)::[] -> 
-			begin
+		| [] -> begin
+			[]
+			end
+		| (typ, vid)::tails -> 
 			match typ with
-			| ObjectT cname -> 
+			| ObjectT cname -> begin
+				println "ObjectT";
 	        (* check if the declared class name exists *)
 				if (exists_class_decl p cname) 
-					then []
+					then begin
+						(helper tails)
+					end
 					(* return the undefined type *)
-					else typ::[] 
-			(* Primitive type *)
-			| _ -> ( [] ) 
+					else begin
+						(typ :: (helper tails))
+					end
 			end
-	in match ( helper vlst) with
+			(* Primitive type *)
+			| _ -> begin
+				println "Primitive type";
+				(helper tails) 
+			end
+	in
+		match ( helper vlst) with
 		| [] ->  (true,"")
 		| lst -> (false, ("Undefined types: " 
 				^ (string_of_list lst string_of_jlite_type ",")))
+end
 
- 
 (* Type check a list of method declarations 
   1) Determine if there is illegal overloading
   2) Find and return overloaded method names	
@@ -199,7 +219,9 @@ let rec type_check_stmts
 				(rettype, (newstmt::stmts))
   
 (* TypeCheck a JLite Method Declaration *)
-let type_check_mthd_decl p env cname m : md_decl = 
+let type_check_mthd_decl p env cname m : md_decl = begin
+	println "type_check_mthd_decl";
+
 	let mthdenv = 
 		List.append m.params m.localvars in 
 	let (retval, errmsg) = 
@@ -247,6 +269,7 @@ let type_check_mthd_decl p env cname m : md_decl =
 				else true
 			in { m with stmts = newstmts;
 				}
+end
 
 (* TypeCheck a JLite Program. 
    Return a new JLite Program 
@@ -258,7 +281,13 @@ let type_check_jlite_program (p:jlite_program) : jlite_program =
 	let type_check_class_main  ((cname, mmthd):class_main ) = 
 		(cname, (type_check_mthd_decl p [] cname mmthd )) in
 
-	let rec type_check_class_decl ((cname, cvars, cmthds):class_decl) =
+	let rec type_check_class_decl ((cname, cvars, cmthds):class_decl) = 
+	begin
+		println "";
+		println ("type_check_class_decl: " ^ cname);
+
+		println (string_of_list cvars string_of_var_decl ";\n");
+
 		(* TypeCheck field declarations *)
 		let (retval, errmsg) = (type_check_var_decl_list p cvars) in
 		if (retval == false) then 
@@ -277,6 +306,7 @@ let type_check_jlite_program (p:jlite_program) : jlite_program =
 				List.map 
 				(type_check_mthd_decl p env cname) cmthds
 				)
+	end
 	in 
 
 	begin

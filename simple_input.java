@@ -9,6 +9,7 @@ class MainC {
 
 class Functional {
 Int a;
+Hello b;
 
 Int f (Int b){
         readln(b) ;
@@ -20,4 +21,11 @@ Int g (Int x){
         return x;
 }
 
+}
+
+class Hello {
+  Int c;
+  Int h (Int c) {
+    return 5;
+  }
 }
