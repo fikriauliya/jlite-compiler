@@ -30,6 +30,9 @@ let group_dups lst =
        else aux [] ((a :: current) :: acc) t  in
   List.rev (aux [] [] sorted_lst);;
 
+let filter_dups lst =
+	let duplicates_group = group_dups lst in
+	List.map (fun x -> List.hd x) (List.filter (fun x -> (List.length x) > 1) duplicates_group)
 
 (* Compare two variable ids *) 	
 let compare_var_ids v1 v2 =
@@ -85,6 +88,7 @@ let rec create_scoped_var_decls
 
 	class_name * (var_decl list) * (md_decl list) *)
 
+
 (* Type check a list of variable declarations 
   1) Determine if all object types exist
   2) Find and return duplicate variable names 
@@ -130,8 +134,7 @@ let rec type_check_var_decl_list
 						| TypedVarId (var_name, typ, scope) -> var_name
 		in
 		let var_names = List.map extract_var_name vlst in
-		let duplicates_group = group_dups var_names in
-		List.map (fun x -> List.hd x) (List.filter (fun x -> (List.length x) > 1) duplicates_group)
+		filter_dups var_names
 	in
 		match (check_existances vlst) with
 		| [] -> 
