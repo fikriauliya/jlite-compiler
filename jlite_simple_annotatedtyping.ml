@@ -273,7 +273,12 @@ let rec type_check_stmts
 	(mthd: md_decl) 
 	(stmtlst:jlite_stmt list)
 	(rettype: jlite_type option) 
-	: (jlite_type option *(jlite_stmt list))  =
+	: (jlite_type option *(jlite_stmt list))  = begin
+
+	println "";
+	println "+type_check_stmts";
+	println (string_of_list stmtlst string_of_jlite_stmt ", ");
+
 	match stmtlst with
 	| [] -> (rettype,[])
 	| s::tail_lst -> 
@@ -334,13 +339,15 @@ let rec type_check_stmts
 			let (rettype, stmts) = 
 				(type_check_stmts p env classid mthd tail_lst newrettype) in
 				(rettype, (newstmt::stmts))
-  
+ end
+
 (* TypeCheck a JLite Method Declaration *)
 let type_check_mthd_decl p env cname m : md_decl = begin
-	println "+type_check_mthd_decl";
+	println (">>>>>>>>>>>>>>>>>>>>>>>>> + type_check_mthd_decl: [" ^ string_of_var_id(m.jliteid) ^ "]") ;
 
 	let mthdenv = 
 		List.append m.params m.localvars in 
+	(* OK *)
 	let (retval, errmsg) = 
 		(type_check_var_decl_list p mthdenv)
 	in if (retval == false) 
@@ -412,12 +419,14 @@ let type_check_jlite_program (p:jlite_program) : jlite_program =
 			^ " field declarations: " ^ errmsg ^ "\n")
 
 		(* TypeCheck methods overloading *)
+		(* OK *)
 		else let (retval, errmsg) = (type_check_md_overloading cname cmthds) in
 			if (retval == false) then 
 				failwith 
 				("\nType-check error in " ^ cname 
 				^ " method declarations: " ^ errmsg ^ "\n")
 			(* TypeCheck method declarations *)
+			(* OK *)
 			else let env = (create_scoped_var_decls cvars 1) 
 			in (cname, cvars, 
 				List.map 

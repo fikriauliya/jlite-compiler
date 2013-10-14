@@ -40,15 +40,21 @@ class Hello1 {
   Int h (Int c) {
     Hello d;
     Hello s;
+    Int f;
+    
+    c = 200;
     return 5;
   }
-  Int h (Int c, String s) {
-    return 5;
-  }
-  Int h (Int c, Int s) {
-    return 5;
-  }
-  Int h (Int c, Hello s) {
-    return 5;
-  }
+  // Int h (Int c, String s) {
+  //   return 5;
+  // }
+  // Int h (Int c, Int s) {
+  //   return 5;
+  // }
+  // Int h (Int c, Hello s) {
+  //   return 5;
+  // }
+  // Hello1 h (Int c, Hello1 s) {
+  //   return s;
+  // }
 }
