@@ -20,15 +20,18 @@ let rec remove_dups lst =
 	| h::t -> h::(remove_dups (List.filter (fun x -> x<>h) t))
 
 (* From: http://ocaml.org/tutorials/99problems.html *)
-let group_dups lst =
-	let sorted_lst = List.sort compare lst in
+let group_dups_func comparator lst =
+	let sorted_lst = List.sort comparator lst in
   let rec aux current acc = function
     | [] -> []    (* Can only be reached if original list is empty *)
     | [x] -> (x :: current) :: acc
     | a :: (b :: _ as t) ->
-       if a = b then aux (a :: current) acc t
+       if (comparator a b) == 0 then aux (a :: current) acc t
        else aux [] ((a :: current) :: acc) t  in
   List.rev (aux [] [] sorted_lst);;
+
+let group_dups lst =
+	group_dups_func	compare lst
 
 let filter_dups lst =
 	let duplicates_group = group_dups lst in
@@ -165,7 +168,75 @@ end
 	---  TODO  ---
 *)  
 let rec type_check_md_overloading 
-	(classid: class_name) (mdlst: md_decl list) = (true,"") 
+	(classid: class_name) (mdlst: md_decl list) = begin
+
+	let extract_var_name varid = 
+		match varid with
+			| SimpleVarId var_name -> var_name
+			| TypedVarId (var_name, typ, scope) -> var_name
+	in
+
+	let name_duplicated_methods = List.filter (fun x -> (List.length x) > 1)
+		(group_dups_func 
+			(fun x y -> 
+				let x_name = extract_var_name x.jliteid in
+				let y_name = extract_var_name y.jliteid in
+				compare x_name y_name)
+			mdlst) in
+
+	let overloaded_methods = 
+		let rec compare_params (x:var_decl list) (y:var_decl list) =
+			if (List.length x) > (List.length y) 
+			then 1
+			else
+				if (List.length x) < (List.length y) 
+				then -1
+				else
+					match (x, y) with
+						| ([], []) -> 0
+						| ((xt, xh)::xs, (yt, yh)::ys) -> 
+							if xt == yt 
+							then begin
+								println "== method type";
+								println (string_of_jlite_type xt);
+								println (string_of_jlite_type yt);
+								compare_params xs ys
+							end
+							else begin
+								println "<> method type";
+								println (string_of_jlite_type xt);
+								println (string_of_jlite_type yt);
+								compare xt yt
+							end
+		in
+		List.fold_left 
+			(fun p mds -> 
+				begin
+				println "";
+				println (">> +Evaluating: " ^ (string_of_var_id (List.hd mds).jliteid));
+				let params_duplicated_methods = List.filter (fun x -> (List.length x) > 1)
+					(group_dups_func
+						(fun x y ->
+							let x_params = x.params in
+							let y_params = y.params in
+
+							compare_params x_params y_params)
+						mds)
+				in
+					println (">> -Evaluating: " ^ (string_of_var_id (List.hd mds).jliteid));
+					println "";
+					if (List.length params_duplicated_methods) > 0 
+					then
+						(extract_var_name (List.hd mds).jliteid)::p
+					else
+						p
+				end
+			) [] name_duplicated_methods in
+
+	if (List.length overloaded_methods) == 0
+	then (true, "")
+	else (false, "\nIncorrect overloaded method: " ^ string_of_list overloaded_methods (fun x -> x) "," ^ "\n")
+end
 				
 (* Type check an expression *)
 (* Return the type of the Expression 
@@ -335,17 +406,19 @@ let type_check_jlite_program (p:jlite_program) : jlite_program =
 		println (">>> +type_check_class_decl (for each fields in class: [" ^ cname ^ "], make sure the types are defined & no duplication exists). ");
 
 		(* TypeCheck field declarations *)
+		(* OK *)
 		let (retval, errmsg) = (type_check_var_decl_list p cvars) in
 		if (retval == false) then 
 			failwith 
 			("\nType-check error in " ^ cname 
-			^ " field declarations." ^ errmsg ^ "\n")
+			^ " field declarations: " ^ errmsg ^ "\n")
+
 		(* TypeCheck methods overloading *)
 		else let (retval, errmsg) = (type_check_md_overloading cname cmthds) in
 			if (retval == false) then 
 				failwith 
 				("\nType-check error in " ^ cname 
-				^ " method declarations." ^ errmsg ^ "\n")
+				^ " method declarations: " ^ errmsg ^ "\n")
 			(* TypeCheck method declarations *)
 			else let env = (create_scoped_var_decls cvars 1) 
 			in (cname, cvars, 

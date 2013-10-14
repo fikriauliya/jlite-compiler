@@ -21,7 +21,9 @@ Int f (Int b){
 Int g (Int x){ 
         return x;
 }
-
+Int g (Int x, Int y){ 
+        return x;
+}
 }
 
 class Hello {
@@ -32,10 +34,21 @@ class Hello {
   }
 }
 
-class Hello {
+class Hello1 {
   Int c;
   Hello d;
   Int h (Int c) {
+    Hello d;
+    Hello s;
+    return 5;
+  }
+  Int h (Int c, String s) {
+    return 5;
+  }
+  Int h (Int c, Int s) {
+    return 5;
+  }
+  Int h (Int c, Hello s) {
     return 5;
   }
 }
