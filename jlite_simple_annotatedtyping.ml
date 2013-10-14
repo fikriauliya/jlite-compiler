@@ -13,10 +13,23 @@ let println line = begin
 	printf "%s\n" line;
 end
 
+(* From: https://gist.github.com/23Skidoo/1664038 *)
 let rec remove_dups lst = 
 	match lst with 
 	| [] -> []
 	| h::t -> h::(remove_dups (List.filter (fun x -> x<>h) t))
+
+(* From: http://ocaml.org/tutorials/99problems.html *)
+let group_dups lst =
+	let sorted_lst = List.sort compare lst in
+  let rec aux current acc = function
+    | [] -> []    (* Can only be reached if original list is empty *)
+    | [x] -> (x :: current) :: acc
+    | a :: (b :: _ as t) ->
+       if a = b then aux (a :: current) acc t
+       else aux [] ((a :: current) :: acc) t  in
+  List.rev (aux [] [] sorted_lst);;
+
 
 (* Compare two variable ids *) 	
 let compare_var_ids v1 v2 =
@@ -65,7 +78,13 @@ let rec create_scoped_var_decls
 		| TypedVarId (id, t, s) -> 
 			(vt, TypedVarId (id, vt, scope))
 	in (List.map helper vlst)
-  
+
+(* let rec type_check_class_decl_list
+	(p: jlite_program) 
+	(clist: class_decl list) =
+
+	class_name * (var_decl list) * (md_decl list) *)
+
 (* Type check a list of variable declarations 
   1) Determine if all object types exist
   2) Find and return duplicate variable names 
@@ -102,25 +121,21 @@ let rec type_check_var_decl_list
 				(check_existances tails) 
 			end
 	in
-	let rec check_duplicates (vlst: var_decl list) (seen_vars: string list) : string list =
-		match vlst with
-		| [] ->
-			[]
-		| (typ, vid) :: tails ->
-			let var_name = 
-				match vid with
-					| SimpleVarId var_name -> var_name
-					| TypedVarId (var_name, typ, scope) -> var_name
-			in
-			if List.exists (fun x -> x = var_name) seen_vars
-				then
-					var_name :: (check_duplicates tails seen_vars)
-				else
-					(check_duplicates tails (var_name :: seen_vars))
+	let rec check_duplicates (vlst: var_decl list) : string list =
+		let extract_var_name (vlst: var_decl) =
+			match vlst with
+				(typ, vid) ->
+					match vid with
+						| SimpleVarId var_name -> var_name
+						| TypedVarId (var_name, typ, scope) -> var_name
+		in
+		let var_names = List.map extract_var_name vlst in
+		let duplicates_group = group_dups var_names in
+		List.map (fun x -> List.hd x) (List.filter (fun x -> (List.length x) > 1) duplicates_group)
 	in
 		match (check_existances vlst) with
 		| [] -> 
-			match (remove_dups (check_duplicates vlst [])) with
+			match (check_duplicates vlst) with
 			| [] ->  (true,"")
 			| lst -> (false, ("Duplicate variables found: " 
 					^ (string_of_list lst (fun x -> x) ",")))
@@ -328,6 +343,14 @@ let type_check_jlite_program (p:jlite_program) : jlite_program =
 
 	begin
 		let (mainclass, classes) = p in 
+
+		(* TypeCheck class declarations *)
+		(* let (retval, errmsg) = (type_check_class_decl_list p classes) in
+		if (retval == false) then
+			failwith
+			("\nType-check error in " ^ cname 
+			^ " class declarations." ^ errmsg ^ "\n") *)
+
 		let newmain = (type_check_class_main mainclass) in
 		let newclasses = (List.map type_check_class_decl classes) in
 		(newmain, newclasses)
