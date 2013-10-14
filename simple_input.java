@@ -35,8 +35,6 @@ class Hello {
 class Hello {
   Int c;
   Hello d;
-  Hello d;
-  Hello c;
   Int h (Int c) {
     return 5;
   }

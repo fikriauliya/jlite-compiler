@@ -82,12 +82,23 @@ let rec create_scoped_var_decls
 			(vt, TypedVarId (id, vt, scope))
 	in (List.map helper vlst)
 
-(* let rec type_check_class_decl_list
+let type_check_class_decl_list
 	(p: jlite_program) 
 	(clist: class_decl list) =
 
-	class_name * (var_decl list) * (md_decl list) *)
-
+	let check_duplicates clist : string list =
+		let extract_class_name (cldec: class_decl) =
+			match cldec with
+				(cn, vd, md) ->
+					cn
+		in
+		let class_names = List.map extract_class_name clist in
+		filter_dups class_names
+	in
+	match (check_duplicates clist) with
+		| [] ->  (true,"")
+		| lst -> (false, ("Duplicate class name found: " 
+				^ (string_of_list lst (fun x -> x) ",")))
 
 (* Type check a list of variable declarations 
   1) Determine if all object types exist
@@ -125,7 +136,7 @@ let rec type_check_var_decl_list
 				(check_existances tails) 
 			end
 	in
-	let rec check_duplicates (vlst: var_decl list) : string list =
+	let check_duplicates (vlst: var_decl list) : string list =
 		let extract_var_name (vlst: var_decl) =
 			match vlst with
 				(typ, vid) ->
@@ -348,12 +359,12 @@ let type_check_jlite_program (p:jlite_program) : jlite_program =
 		let (mainclass, classes) = p in 
 
 		(* TypeCheck class declarations *)
-		(* let (retval, errmsg) = (type_check_class_decl_list p classes) in
-		if (retval == false) then
-			failwith
-			("\nType-check error in " ^ cname 
-			^ " class declarations." ^ errmsg ^ "\n") *)
-
+		let (retval, errmsg) = (type_check_class_decl_list p classes) in
+		let res = 
+			if (retval == false) then
+					failwith ("\n" ^ errmsg ^ "\n")
+			else true 
+		in
 		let newmain = (type_check_class_main mainclass) in
 		let newclasses = (List.map type_check_class_decl classes) in
 		(newmain, newclasses)
