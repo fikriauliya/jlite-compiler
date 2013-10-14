@@ -13,6 +13,11 @@ let println line = begin
 	printf "%s\n" line;
 end
 
+let rec remove_dups lst = 
+	match lst with 
+	| [] -> []
+	| h::t -> h::(remove_dups (List.filter (fun x -> x<>h) t))
+
 (* Compare two variable ids *) 	
 let compare_var_ids v1 v2 =
 	match v1, v2 with
@@ -63,26 +68,20 @@ let rec create_scoped_var_decls
   
 (* Type check a list of variable declarations 
   1) Determine if all object types exist
-  2) Find and return duplicate variable names -- TODO	
-
-    This type check function is a simple version in 
-    which there is only one variable declaration in 
-    the declaration list
-	The function returns the 
-	 typecheck result (true or false) and an error message.
+  2) Find and return duplicate variable names 
 *)  
+(* OK *)
 let rec type_check_var_decl_list
 	(p: jlite_program) 
 	(vlst: var_decl list) = begin
 
-	println "type_check_var_decl_list";
-	println ("var_decl: " ^ (string_of_list vlst string_of_var_decl ";\n" ));
+	println "+type_check_var_decl_list";
+	println ("var_decl: [" ^ (string_of_list vlst string_of_var_decl ", " ) ^ "]");
 
-	let rec helper (vlst: var_decl list) :jlite_type list =
+	let rec check_existances (vlst: var_decl list) :jlite_type list =
 		match vlst with
-		| [] -> begin
+		| [] ->
 			[]
-			end
 		| (typ, vid)::tails -> 
 			match typ with
 			| ObjectT cname -> begin
@@ -90,23 +89,43 @@ let rec type_check_var_decl_list
 	        (* check if the declared class name exists *)
 				if (exists_class_decl p cname) 
 					then begin
-						(helper tails)
+						(check_existances tails)
 					end
 					(* return the undefined type *)
 					else begin
-						(typ :: (helper tails))
+						(typ :: (check_existances tails))
 					end
 			end
 			(* Primitive type *)
 			| _ -> begin
 				println "Primitive type";
-				(helper tails) 
+				(check_existances tails) 
 			end
 	in
-		match ( helper vlst) with
-		| [] ->  (true,"")
+	let rec check_duplicates (vlst: var_decl list) (seen_vars: string list) : string list =
+		match vlst with
+		| [] ->
+			[]
+		| (typ, vid) :: tails ->
+			let var_name = 
+				match vid with
+					| SimpleVarId var_name -> var_name
+					| TypedVarId (var_name, typ, scope) -> var_name
+			in
+			if List.exists (fun x -> x = var_name) seen_vars
+				then
+					var_name :: (check_duplicates tails seen_vars)
+				else
+					(check_duplicates tails (var_name :: seen_vars))
+	in
+		match (check_existances vlst) with
+		| [] -> 
+			match (remove_dups (check_duplicates vlst [])) with
+			| [] ->  (true,"")
+			| lst -> (false, ("Duplicate variables found: " 
+					^ (string_of_list lst (fun x -> x) ",")))
 		| lst -> (false, ("Undefined types: " 
-				^ (string_of_list lst string_of_jlite_type ",")))
+				^ (string_of_list lst (fun x -> x) ",")))
 end
 
 (* Type check a list of method declarations 
@@ -220,7 +239,7 @@ let rec type_check_stmts
   
 (* TypeCheck a JLite Method Declaration *)
 let type_check_mthd_decl p env cname m : md_decl = begin
-	println "type_check_mthd_decl";
+	println "+type_check_mthd_decl";
 
 	let mthdenv = 
 		List.append m.params m.localvars in 
@@ -284,9 +303,7 @@ let type_check_jlite_program (p:jlite_program) : jlite_program =
 	let rec type_check_class_decl ((cname, cvars, cmthds):class_decl) = 
 	begin
 		println "";
-		println ("type_check_class_decl: " ^ cname);
-
-		println (string_of_list cvars string_of_var_decl ";\n");
+		println (">>> +type_check_class_decl (for each fields in class: [" ^ cname ^ "], make sure the types are defined & no duplication exists). ");
 
 		(* TypeCheck field declarations *)
 		let (retval, errmsg) = (type_check_var_decl_list p cvars) in

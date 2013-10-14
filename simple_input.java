@@ -25,6 +25,7 @@ Int g (Int x){
 
 class Hello {
   Int c;
+  Hello d;
   Int h (Int c) {
     return 5;
   }
