@@ -197,13 +197,11 @@ let rec type_check_md_overloading
 						| ((xt, xh)::xs, (yt, yh)::ys) -> 
 							if xt == yt 
 							then begin
-								println "== method type";
 								println (string_of_jlite_type xt);
 								println (string_of_jlite_type yt);
 								compare_params xs ys
 							end
 							else begin
-								println "<> method type";
 								println (string_of_jlite_type xt);
 								println (string_of_jlite_type yt);
 								compare xt yt
