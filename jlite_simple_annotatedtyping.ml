@@ -50,14 +50,15 @@ let compare_var_ids v1 v2 =
 		((String.compare id1 id2) == 0) && (s1 == s2)
 		
 (* Find the declared type of a variable *) 		
+(* TODO: consider scoping *)
 let rec find_var_decl_type 
 	(vlst: var_decl list) (vid:var_id) =
   match vlst with
     | [] -> (Unknown, SimpleVarId "") 
     | (t, v)::lst -> 
-		if (compare_var_ids v vid) 
-		then (t, v) 
-		else (find_var_decl_type lst vid)
+			if (compare_var_ids v vid) 
+			then (t, v) 
+			else (find_var_decl_type lst vid)
 
 (* Check if a variable id exists *)
 let exists_var_id 
@@ -241,7 +242,8 @@ end
     and a new TypedExpession *)  
 let rec type_check_expr 
 	(p: jlite_program)(env: var_decl list) 
-	(classid: class_name) (exp:jlite_exp) = 
+	(classid: class_name) (exp:jlite_exp) : (jlite_type * jlite_exp) = 
+
 	let rec helper e 
 	: (jlite_type * jlite_exp) =
 		match e with
@@ -259,7 +261,23 @@ let rec type_check_expr
 			if (exists_class_decl p c) 
 			then ((ObjectT c), TypedExp(e, (ObjectT c)))
 			else (Unknown, e)
-		| _ -> (Unknown, e) 
+		| BinaryExp (op, e1, e2) ->
+			let (e1_t, e1_new) = (helper e1) in
+			let (e2_t, e2_new) = (helper e2) in
+			if (e1_t == e2_t)
+			then
+				(e1_t, BinaryExp (op, e1_new, e2_new))
+			else
+				failwith 
+					("\nType-check error in BinaryExp: " ^ (string_of_jlite_expr e) ^ "\n") 
+(* 		| UnaryExp (op, e) -> 
+		of jlite_op * jlite_exp
+	  | BinaryExp of jlite_op * jlite_exp * jlite_exp
+	  | FieldAccess of jlite_exp * var_id
+	  | ObjectCreate of class_name
+	  | MdCall of jlite_exp * (jlite_exp list)  *)
+
+  	| _ -> (Unknown, e) 
 		 (* Handle other expresion types ---- TODO ---- *)
 	  in  helper exp
 
@@ -282,49 +300,56 @@ let rec type_check_stmts
 	match stmtlst with
 	| [] -> (rettype,[])
 	| s::tail_lst -> 
-		let rec helper s 
-		: (jlite_type option * jlite_stmt) =
-		match s with
-		| ReturnStmt e ->  
-			let (expr_type, exprnew) = 
-			 (type_check_expr p env classid e) in
-			begin
-			match expr_type with
-			| Unknown -> 
-				failwith 
-				("\nType-check error in " 
-				^ classid ^ "." ^ string_of_var_id mthd.jliteid 
-				^ ". Return expression fails:\n" 
-				^ string_of_jlite_stmt s ^ "\n")
-			| _ ->  (Some expr_type, ReturnStmt exprnew)
-			end
-		| ReturnVoidStmt ->  
-			(Some VoidT, ReturnVoidStmt)
-		| ReadStmt id -> 
-			let (idtype, scopedid) = (find_var_decl_type env id) in
-			begin
-			match idtype with
-			| ObjectT _ | Unknown  -> 
-				failwith 
-				("\nType-check error in " 
-				^ classid ^ "." ^ string_of_var_id mthd.jliteid 
-				^ ". Read statement fails:\n" 
-				^ string_of_jlite_stmt s ^ "\n")
-			| _ ->  (None, ReadStmt scopedid)
-			end
-		| PrintStmt e -> 
-			let (expr_type, exprnew) = 
-			 (type_check_expr p env classid e) in
-			begin
-			match expr_type with
-			| Unknown | ObjectT _ -> 
-				failwith 
-				("\nType-check error in " 
-				^ classid ^ "." ^ string_of_var_id mthd.jliteid 
-				^ ". Statement fails:\n" 
-				^ string_of_jlite_stmt s ^ "\n")
-			| _ ->  (None, PrintStmt exprnew)
-			end
+		let rec helper s : (jlite_type option * jlite_stmt) =
+			match s with
+			| ReturnStmt e ->  
+				let (expr_type, exprnew) = 
+				 (type_check_expr p env classid e) in
+				begin
+				match expr_type with
+				| Unknown -> 
+					failwith 
+					("\nType-check error in " 
+					^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+					^ ". Return expression fails:\n" 
+					^ string_of_jlite_stmt s ^ "\n")
+				| _ ->  (Some expr_type, ReturnStmt exprnew)
+				end
+			| ReturnVoidStmt ->  
+				(Some VoidT, ReturnVoidStmt)
+			| ReadStmt id -> 
+				let (idtype, scopedid) = (find_var_decl_type env id) in
+				begin
+				match idtype with
+				| ObjectT _ | Unknown  -> 
+					failwith 
+					("\nType-check error in " 
+					^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+					^ ". Read statement fails:\n" 
+					^ string_of_jlite_stmt s ^ "\n")
+				| _ ->  (None, ReadStmt scopedid)
+				end
+			| PrintStmt e -> 
+				let (expr_type, exprnew) = 
+				 (type_check_expr p env classid e) in
+				begin
+				match expr_type with
+				| Unknown | ObjectT _ -> 
+					failwith 
+					("\nType-check error in " 
+					^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+					^ ". Statement fails:\n" 
+					^ string_of_jlite_stmt s ^ "\n")
+				| _ ->  (None, PrintStmt exprnew)
+				end
+	(* | IfStmt of jlite_exp * (jlite_stmt list) * (jlite_stmt list)
+	| WhileStmt of jlite_exp * (jlite_stmt list)
+	
+	| AssignStmt of var_id * jlite_exp
+	| AssignFieldStmt of jlite_exp * jlite_exp
+	| MdCallStmt of jlite_exp *)
+				
+
 		(* _ -> Handle other Statement types
 		  ---- TODO ---- *)
 	  in let (newrettype, newstmt) = ( helper s) in
@@ -336,8 +361,7 @@ let rec type_check_stmts
 			 ^ ". Dead Code:\n" 
 			 ^ (string_of_list tail_lst string_of_jlite_stmt "\n" ^ "\n")) 
 		| _,_ ->  
-			let (rettype, stmts) = 
-				(type_check_stmts p env classid mthd tail_lst newrettype) in
+			let (rettype, stmts) = (type_check_stmts p env classid mthd tail_lst newrettype) in
 				(rettype, (newstmt::stmts))
  end
 
@@ -391,8 +415,10 @@ let type_check_mthd_decl p env cname m : md_decl = begin
 					^ string_of_jlite_type m.rettype 
 					^ string_of_jlite_type t1 ^ ". \n")
 				else true
-			in { m with stmts = newstmts;
-				}
+			in 
+			{ 
+				m with stmts = newstmts;
+			}
 end
 
 (* TypeCheck a JLite Program. 

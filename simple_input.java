@@ -42,7 +42,8 @@ class Hello1 {
     Hello s;
     Int f;
     
-    c = 200;
+    readln(f);
+    println(f + 1 + 3);
     return 5;
   }
   // Int h (Int c, String s) {
