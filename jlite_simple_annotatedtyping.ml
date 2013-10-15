@@ -270,6 +270,9 @@ let rec type_check_expr
 			else
 				failwith 
 					("\nType-check error in BinaryExp: " ^ (string_of_jlite_expr e) ^ "\n") 
+		| UnaryExp (op ,e1) ->
+			let (e1_t, e1_new) = helper e1 in
+			(e1_t, UnaryExp (op, e1_new))
 (* 		| UnaryExp (op, e) -> 
 		of jlite_op * jlite_exp
 	  | BinaryExp of jlite_op * jlite_exp * jlite_exp

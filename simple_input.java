@@ -44,6 +44,7 @@ class Hello1 {
     
     readln(f);
     println(f + 1 + 3);
+    println(-2);
     return 5;
   }
   // Int h (Int c, String s) {
