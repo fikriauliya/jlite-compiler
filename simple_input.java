@@ -37,6 +37,7 @@ class Hello {
 class Hello1 {
   Int c;
   Hello d;
+
   Int h (Int c) {
     Hello d;
     Hello s;
@@ -45,7 +46,15 @@ class Hello1 {
     readln(f);
     println(f + 1 + 3);
     println(-2);
-    return 5;
+    return w();
+  }
+
+  Hello w() {
+    Hello h;
+    return h;
+  }
+  Int w(Int a) {
+    return 0;
   }
   // Int h (Int c, String s) {
   //   return 5;
@@ -59,4 +68,8 @@ class Hello1 {
   // Hello1 h (Int c, Hello1 s) {
   //   return s;
   // }
+}
+
+class Hello2 {
+
 }

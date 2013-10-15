@@ -13,6 +13,33 @@ let println line = begin
 	printf "%s\n" line;
 end
 
+let rec compare_params_type (x:var_decl list) (y:var_decl list) =
+	if (List.length x) > (List.length y) 
+	then 1
+	else
+		if (List.length x) < (List.length y) 
+		then -1
+		else
+			match (x, y) with
+				| ([], []) -> 0
+				| ((xt, xh)::xs, (yt, yh)::ys) -> 
+					if xt == yt 
+					then begin
+						(* println (string_of_jlite_type xt);
+						println (string_of_jlite_type yt); *)
+						compare_params_type xs ys
+					end
+					else begin
+						(* println (string_of_jlite_type xt);
+						println (string_of_jlite_type yt); *)
+						compare xt yt
+					end
+
+let extract_var_name (jliteid:var_id) =
+	match jliteid with
+		| SimpleVarId var_name -> var_name
+		| TypedVarId (var_name, typ, scope) -> var_name
+
 (* From: https://gist.github.com/23Skidoo/1664038 *)
 let rec remove_dups lst = 
 	match lst with 
@@ -59,6 +86,35 @@ let rec find_var_decl_type
 			if (compare_var_ids v vid) 
 			then (t, v) 
 			else (find_var_decl_type lst vid)
+
+let rec find_method
+	(p:jlite_program) (classid:class_name) (method_name:string) (param_types: jlite_type list): md_decl =
+	begin
+	match p with
+		| (_, classes) ->
+			let found_class = List.find
+				(fun x -> 
+					match x with
+					(cn, _, _) -> 
+						(compare cn classid) == 0
+				)
+			classes in
+			let found_method = 
+				match found_class with
+					(_, _, mds) ->
+						List.find 
+							(fun x -> 
+								if (compare (extract_var_name x.jliteid) method_name) == 0
+								then
+									if (compare_params_type x.params (List.map (fun x -> (x, SimpleVarId "")) param_types)) == 0
+									then true
+									else false
+								else false
+							)
+							mds
+			in
+			found_method
+	end
 
 (* Check if a variable id exists *)
 let exists_var_id 
@@ -143,10 +199,7 @@ let rec type_check_var_decl_list
 	let check_duplicates (vlst: var_decl list) : string list =
 		let extract_var_name (vlst: var_decl) =
 			match vlst with
-				(typ, vid) ->
-					match vid with
-						| SimpleVarId var_name -> var_name
-						| TypedVarId (var_name, typ, scope) -> var_name
+				(typ, vid) -> extract_var_name(vid)
 		in
 		let var_names = List.map extract_var_name vlst in
 		filter_dups var_names
@@ -186,28 +239,6 @@ let rec type_check_md_overloading
 			mdlst) in
 
 	let overloaded_methods = 
-		let rec compare_params (x:var_decl list) (y:var_decl list) =
-			if (List.length x) > (List.length y) 
-			then 1
-			else
-				if (List.length x) < (List.length y) 
-				then -1
-				else
-					match (x, y) with
-						| ([], []) -> 0
-						| ((xt, xh)::xs, (yt, yh)::ys) -> 
-							if xt == yt 
-							then begin
-								println (string_of_jlite_type xt);
-								println (string_of_jlite_type yt);
-								compare_params xs ys
-							end
-							else begin
-								println (string_of_jlite_type xt);
-								println (string_of_jlite_type yt);
-								compare xt yt
-							end
-		in
 		List.fold_left 
 			(fun p mds -> 
 				begin
@@ -219,7 +250,7 @@ let rec type_check_md_overloading
 							let x_params = x.params in
 							let y_params = y.params in
 
-							compare_params x_params y_params)
+							compare_params_type x_params y_params)
 						mds)
 				in
 					println (">> -Evaluating: " ^ (string_of_var_id (List.hd mds).jliteid));
@@ -273,14 +304,48 @@ let rec type_check_expr
 		| UnaryExp (op ,e1) ->
 			let (e1_t, e1_new) = helper e1 in
 			(e1_t, UnaryExp (op, e1_new))
-(* 		| UnaryExp (op, e) -> 
-		of jlite_op * jlite_exp
-	  | BinaryExp of jlite_op * jlite_exp * jlite_exp
+		| MdCall (e1, params) -> begin
+			let td = match e1 with
+				| UnaryExp _ -> println "UnaryExp"; true
+				| BinaryExp _ -> println "BinaryExp"; true
+				| FieldAccess _ -> println "FieldAccess"; true
+				| ObjectCreate _ -> println "ObjectCreate"; true
+				| MdCall _ -> println "MdCall"; true
+				| BoolLiteral _ -> println "BoolLiteral"; true
+				| IntLiteral _ -> println "IntLiteral"; true
+				| StringLiteral _ -> println "StringLiteral"; true
+				| ThisWord  -> println "ThisWord"; true
+				| NullWord -> println "NullWord"; true
+				| Var _ -> println "Var"; true
+				| TypedExp _ -> println "TypedExp"; true
+			in
+			let method_name = match e1 with
+				| Var name -> extract_var_name name
+				| _ -> ""
+			in
+			let params_type = List.map (fun x -> 
+					match x with
+						(t, _) -> t
+				)
+				(List.map helper params)
+			in
+			(* println (string_of_jlite_expr e1); *)
+			let found_method = find_method p classid method_name params_type
+			in
+			(* println (extract_var_name found_method.jliteid); *)
+			(found_method.rettype, e1)
+		end
+		(* | FieldAccess (e1, v) ->
+			let (e1_t, e1_new) = helper e1 in
+			 *)
+(* 		
 	  | FieldAccess of jlite_exp * var_id
-	  | ObjectCreate of class_name
 	  | MdCall of jlite_exp * (jlite_exp list)  *)
 
-  	| _ -> (Unknown, e) 
+  	| _ -> begin
+  		println "Unknown";
+  		(Unknown, e) 
+  	end
 		 (* Handle other expresion types ---- TODO ---- *)
 	  in  helper exp
 
@@ -478,3 +543,10 @@ let type_check_jlite_program (p:jlite_program) : jlite_program =
 		let newclasses = (List.map type_check_class_decl classes) in
 		(newmain, newclasses)
 	end
+
+(* let type_check_jlite_program (p:jlite_program) : jlite_program =
+begin
+	let ms = find_method p "Hello1" "w" [IntT] in
+	println (string_of_list ms string_of_md_decl ", ");
+	p
+end *)
