@@ -46,6 +46,22 @@ class Hello {
   Hello s3() {
     return this.d.e.d;
   }
+
+  Hello s4() {
+   return this.d.e.d.s3(); 
+  }
+
+  Hello s5() {
+   return (new Hello()).s3();
+  }
+
+  Hello s6() {
+   return s5().s4();
+  }
+
+  Hello s7() {
+   return this.s4();
+  }
 }
 
 class Hello1 {

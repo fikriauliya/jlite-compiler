@@ -335,19 +335,37 @@ let rec type_check_expr
 			let (e1_t, e1_new) = helper e1 in
 			(e1_t, UnaryExp (op, e1_new))
 		| MdCall (e1, params) -> begin
-			let method_name = match e1 with
-				| Var name -> extract_var_name name
-				| _ -> ""
-			in
 			let params_type = List.map (fun x -> 
-					match x with
-						(t, _) -> t
+				match x with
+					(t, _) -> t
 				)
 				(List.map helper params)
 			in
-			(* println (string_of_jlite_expr e1); *)
-			let found_method = find_method p classid method_name params_type
+			let found_method = match e1 with
+				| Var name -> 
+					let method_name = extract_var_name name in
+					find_method p classid method_name params_type
+				(* | UnaryExp _ -> println "UnaryExp";  SimpleVarId "" *)
+			  (* | BinaryExp _ -> println "BinaryExp"; SimpleVarId "" *)
+			  | FieldAccess (e2, v2) -> 
+			  	println ("FieldAccess : " ^ (string_of_jlite_expr e2) ^ " -> " ^ (string_of_var_id v2)); 
+			  	let (t3, e3) = helper e2 in
+			  	match t3 with
+			  		ObjectT classid -> 
+			  			println ("Class: " ^ classid);
+			  			find_method p classid (extract_var_name v2) params_type
+
+			  (* | ObjectCreate class_name -> println "ObjectCreate"; find_method p "Hello1" "w" [IntT]
+			  | MdCall (md, mp) -> println "MdCall"; find_method p "Hello1" "w" [IntT]
+			  (* | BoolLiteral _ -> println "BoolLiteral"; Unknown *)
+			  (* | IntLiteral _ -> println "IntLiteral"; Unknown *)
+			  (* | StringLiteral _ -> println "StringLiteral"; Unknown *)
+			  | ThisWord -> println "ThisWord"; find_method p "Hello1" "w" [IntT]
+			  (* | NullWord -> println "NullWord"; Unknown *)
+			  (* TODO: check this *)
+			  | TypedExp _ -> println "TypedExp"; find_method p "Hello1" "w" [IntT] *)
 			in
+			(* println (string_of_jlite_expr e1); *)
 			(* println (extract_var_name found_method.jliteid); *)
 			(found_method.rettype, e1)
 		end
