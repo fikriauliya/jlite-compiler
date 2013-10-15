@@ -29,8 +29,22 @@ Int g (Int x, Int y){
 class Hello {
   Int c;
   Hello d;
+  Hello e;
   Int h (Int c) {
-    return 5;
+    //return 5;
+    return d.e.d.d.e.c;
+  }
+
+  Hello s() {
+    return (new Hello()).d;
+  }
+
+  Hello s2() {
+    return s().d;
+  }
+
+  Hello s3() {
+    return this.d.e.d;
   }
 }
 
@@ -46,7 +60,8 @@ class Hello1 {
     readln(f);
     println(f + 1 + 3);
     println(-2);
-    return w();
+    // return w(); => error
+    return w(4);
   }
 
   Hello w() {

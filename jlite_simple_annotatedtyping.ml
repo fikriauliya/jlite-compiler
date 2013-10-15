@@ -79,7 +79,7 @@ let compare_var_ids v1 v2 =
 (* Find the declared type of a variable *) 		
 (* TODO: consider scoping *)
 let rec find_var_decl_type 
-	(vlst: var_decl list) (vid:var_id) =
+	(vlst: var_decl list) (vid:var_id) : (jlite_type * var_id) =
   match vlst with
     | [] -> (Unknown, SimpleVarId "") 
     | (t, v)::lst -> 
@@ -87,18 +87,23 @@ let rec find_var_decl_type
 			then (t, v) 
 			else (find_var_decl_type lst vid)
 
-let rec find_method
-	(p:jlite_program) (classid:class_name) (method_name:string) (param_types: jlite_type list): md_decl =
-	begin
+let find_class (p:jlite_program) (classid:class_name) : class_decl =
 	match p with
 		| (_, classes) ->
-			let found_class = List.find
+			List.find
 				(fun x -> 
 					match x with
 					(cn, _, _) -> 
 						(compare cn classid) == 0
 				)
-			classes in
+				classes
+
+let rec find_method
+	(p:jlite_program) (classid:class_name) (method_name:string) (param_types: jlite_type list): md_decl =
+	begin
+	match p with
+		| (_, classes) ->
+			let found_class = find_class p classid in
 			let found_method = 
 				match found_class with
 					(_, _, mds) ->
@@ -114,6 +119,31 @@ let rec find_method
 							mds
 			in
 			found_method
+	end
+
+let rec find_field
+	(p:jlite_program) (classid:class_name) (field_name: string): var_decl =
+	begin
+	match p with
+		| (_, classes) ->
+			let found_class = List.find
+				(fun x -> 
+					match x with
+					(cn, _, _) -> 
+						(compare cn classid) == 0
+				)
+			classes in
+			let found_field = 
+				match found_class with
+					(_, fs, _) ->
+						List.find 
+							(fun x -> 
+								match x with
+									_, f_id -> (compare (extract_var_name f_id) field_name) == 0
+							)
+							fs
+			in
+			found_field
 	end
 
 (* Check if a variable id exists *)
@@ -305,20 +335,6 @@ let rec type_check_expr
 			let (e1_t, e1_new) = helper e1 in
 			(e1_t, UnaryExp (op, e1_new))
 		| MdCall (e1, params) -> begin
-			let td = match e1 with
-				| UnaryExp _ -> println "UnaryExp"; true
-				| BinaryExp _ -> println "BinaryExp"; true
-				| FieldAccess _ -> println "FieldAccess"; true
-				| ObjectCreate _ -> println "ObjectCreate"; true
-				| MdCall _ -> println "MdCall"; true
-				| BoolLiteral _ -> println "BoolLiteral"; true
-				| IntLiteral _ -> println "IntLiteral"; true
-				| StringLiteral _ -> println "StringLiteral"; true
-				| ThisWord  -> println "ThisWord"; true
-				| NullWord -> println "NullWord"; true
-				| Var _ -> println "Var"; true
-				| TypedExp _ -> println "TypedExp"; true
-			in
 			let method_name = match e1 with
 				| Var name -> extract_var_name name
 				| _ -> ""
@@ -335,12 +351,40 @@ let rec type_check_expr
 			(* println (extract_var_name found_method.jliteid); *)
 			(found_method.rettype, e1)
 		end
-		(* | FieldAccess (e1, v) ->
-			let (e1_t, e1_new) = helper e1 in
-			 *)
-(* 		
-	  | FieldAccess of jlite_exp * var_id
-	  | MdCall of jlite_exp * (jlite_exp list)  *)
+		| FieldAccess (e1, v1) ->
+			let otype = match e1 with
+				| Var var -> 
+					let (otype, oid) = (find_var_decl_type env var) in
+					otype
+				(* | UnaryExp _ -> println "UnaryExp";  SimpleVarId "" *)
+			  (* | BinaryExp _ -> println "BinaryExp"; SimpleVarId "" *)
+			  | FieldAccess (e2, v2) -> 
+			  	let (t3, e3) = helper (FieldAccess (e2, v2)) in
+			  	t3
+			  | ObjectCreate class_name -> 
+			  	let (t3, e3) = helper (ObjectCreate class_name) in
+			  	t3
+			  | MdCall (md, mp) -> 
+			  	let (t3, e3) = helper (MdCall (md, mp)) in
+			  	t3
+			  (* | BoolLiteral _ -> println "BoolLiteral"; Unknown *)
+			  (* | IntLiteral _ -> println "IntLiteral"; Unknown *)
+			  (* | StringLiteral _ -> println "StringLiteral"; Unknown *)
+			  | ThisWord -> 
+			  	let (t3, e3) = helper (ThisWord) in
+			  	t3
+			  (* | NullWord -> println "NullWord"; Unknown *)
+			  (* TODO: check this *)
+			  | TypedExp _ -> println "TypedExp";  Unknown
+			in
+			let field_name =  (extract_var_name v1) in
+
+			match otype with
+				ObjectT class_name ->
+					let (field_type, field_var_id) = find_field p class_name field_name in
+					(field_type, (TypedExp ((FieldAccess (e1, v1)), field_type)))
+				| _ -> 
+					(Unknown, e1)
 
   	| _ -> begin
   		println "Unknown";
