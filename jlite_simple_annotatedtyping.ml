@@ -472,10 +472,25 @@ let rec type_check_stmts
 					^ string_of_jlite_stmt s ^ "\n")
 				| _ ->  (None, PrintStmt exprnew)
 				end
+			| AssignStmt (vi, e) ->
+				println "AssignStmt";
+				let (expr_type, expr_new) = (type_check_expr p env classid e) in
+				let (vi_type, vi_new) = (find_var_decl_type env vi) in
+				println (string_of_jlite_type expr_type);
+				println (string_of_jlite_type vi_type);
+
+				if (expr_type == vi_type)
+					then (None, AssignStmt (vi_new, expr_new))
+					else
+						failwith 
+						("\nType-check error in " 
+						^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+						^ ". AssignStmt fails, type mismatch:\n" 
+						^ string_of_jlite_stmt s ^ "\n")
+				
 	(* | IfStmt of jlite_exp * (jlite_stmt list) * (jlite_stmt list)
 	| WhileStmt of jlite_exp * (jlite_stmt list)
 	
-	| AssignStmt of var_id * jlite_exp
 	| AssignFieldStmt of jlite_exp * jlite_exp
 	| MdCallStmt of jlite_exp *)
 				

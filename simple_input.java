@@ -102,5 +102,14 @@ class Hello1 {
 }
 
 class Hello2 {
+  Int m2() {
+    Int ret;
+    String ret2;
+    String ret3;
 
+    ret = 2;    
+    ret2 = "Hello";
+    ret3 = ret2;
+    return ret;
+  }
 }
