@@ -123,4 +123,19 @@ class Hello2 {
     w.c = 2;
     return;
   }
+
+  Int m5() {
+    Int a;
+    Int b;
+
+    a = 2;
+    b = 3;
+
+    if (a == b) {
+      return 3;
+    }
+    else {
+      return 4;
+    }
+  }
 }

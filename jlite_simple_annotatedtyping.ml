@@ -501,9 +501,35 @@ let rec type_check_stmts
 						^ classid ^ "." ^ string_of_var_id mthd.jliteid 
 						^ ". AssignFieldStmt fails, type mismatch:\n" 
 						^ string_of_jlite_stmt s ^ "\n")
+			| IfStmt (e, s1, s2) ->
+				let (expr_type, expr_new) = (type_check_expr p env classid e) in
+				println (string_of_jlite_expr e);
+				let a = match expr_new with
+					BinaryExp _ -> println "BinaryExp"; 2
+					| _ -> 3
+				in
+				println (string_of_jlite_type expr_type);
+				match expr_type with
+					BoolT ->
+						let (newrettype1, newstmt1) = type_check_stmts p env classid mthd s1 None in
+						let (newrettype2, newstmt2) = type_check_stmts p env classid mthd s2 None in
+						if (newrettype1 == newrettype2)
+						then
+							(newrettype1, IfStmt (expr_new, s1, s2))
+						else
+							failwith 
+								("\nType-check error in " 
+								^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+								^ ". IfStmt inner statements fails, expression type mismatch:\n" 
+								^ string_of_jlite_stmt s ^ "\n")
+					| _ ->
+						failwith 
+							("\nType-check error in " 
+							^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+							^ ". IfStmt checking fails, expression type mismatch:\n" 
+							^ string_of_jlite_stmt s ^ "\n")
 	(* | IfStmt of jlite_exp * (jlite_stmt list) * (jlite_stmt list)
 	| WhileStmt of jlite_exp * (jlite_stmt list)
-	| AssignFieldStmt of jlite_exp * jlite_exp
 	*)
 
 		(* _ -> Handle other Statement types
