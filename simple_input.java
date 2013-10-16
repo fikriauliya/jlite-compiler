@@ -117,4 +117,10 @@ class Hello2 {
     m2();
     return;
   }
+
+  void m4() {
+    Hello w;
+    w.c = 2;
+    return;
+  }
 }

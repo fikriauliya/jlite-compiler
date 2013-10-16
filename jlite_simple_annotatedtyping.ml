@@ -490,12 +490,21 @@ let rec type_check_stmts
 			| MdCallStmt e ->
 				let (expr_type, expr_new) = (type_check_expr p env classid e) in
 				(None, MdCallStmt expr_new)
+			| AssignFieldStmt (e1, e2) ->
+				let (expr1_type, expr1_new) = (type_check_expr p env classid e1) in
+				let (expr2_type, expr2_new) = (type_check_expr p env classid e2) in
+				if (expr1_type == expr2_type)
+					then (None, AssignFieldStmt (expr1_new, expr2_new))
+					else
+						failwith 
+						("\nType-check error in " 
+						^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+						^ ". AssignFieldStmt fails, type mismatch:\n" 
+						^ string_of_jlite_stmt s ^ "\n")
 	(* | IfStmt of jlite_exp * (jlite_stmt list) * (jlite_stmt list)
 	| WhileStmt of jlite_exp * (jlite_stmt list)
-	
 	| AssignFieldStmt of jlite_exp * jlite_exp
-	| MdCallStmt of jlite_exp *)
-				
+	*)
 
 		(* _ -> Handle other Statement types
 		  ---- TODO ---- *)
