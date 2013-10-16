@@ -300,7 +300,7 @@ end
 				
 (* Type check an expression *)
 (* Return the type of the Expression 
-    and a new TypedExpession *)  
+    and a new TypedExpes	ion *)  
 let rec type_check_expr 
 	(p: jlite_program)(env: var_decl list) 
 	(classid: class_name) (exp:jlite_exp) : (jlite_type * jlite_exp) = 
@@ -308,9 +308,9 @@ let rec type_check_expr
 	let rec helper e 
 	: (jlite_type * jlite_exp) =
 		match e with
-		| BoolLiteral v -> (BoolT, e)
-		| IntLiteral v -> (IntT, e)
-		| StringLiteral v -> (StringT, e)
+		| BoolLiteral v -> (BoolT, (TypedExp (e, BoolT)))
+		| IntLiteral v -> (IntT, (TypedExp (e, IntT)))
+		| StringLiteral v -> (StringT, (TypedExp (e, StringT)))
 		| ThisWord -> 
 			((ObjectT classid), TypedExp (e, (ObjectT classid)))
 		| NullWord -> 
