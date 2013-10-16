@@ -112,4 +112,9 @@ class Hello2 {
     ret3 = ret2;
     return ret;
   }
+
+  void m3() {
+    m2();
+    return;
+  }
 }

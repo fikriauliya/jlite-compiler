@@ -487,7 +487,9 @@ let rec type_check_stmts
 						^ classid ^ "." ^ string_of_var_id mthd.jliteid 
 						^ ". AssignStmt fails, type mismatch:\n" 
 						^ string_of_jlite_stmt s ^ "\n")
-				
+			| MdCallStmt e ->
+				let (expr_type, expr_new) = (type_check_expr p env classid e) in
+				(None, MdCallStmt expr_new)
 	(* | IfStmt of jlite_exp * (jlite_stmt list) * (jlite_stmt list)
 	| WhileStmt of jlite_exp * (jlite_stmt list)
 	
