@@ -504,13 +504,14 @@ let rec type_check_stmts
 						^ ". AssignFieldStmt fails, type mismatch:\n" 
 						^ string_of_jlite_stmt s ^ "\n")
 			| IfStmt (e, s1, s2) ->
-				let (expr_type, expr_new) = (type_check_expr p env classid e) in
+				let (
+				expr_type, expr_new) = (type_check_expr p env classid e) in
+				begin
 				match expr_type with
 					BoolT ->
 						let (newrettype1, newstmt1) = type_check_stmts p env classid mthd s1 None in
 						let (newrettype2, newstmt2) = type_check_stmts p env classid mthd s2 None in
-						
-						println "----------------------";
+						begin
 						match (newrettype1, newrettype2) with
 							(Some t1, Some t2) -> 
 								if t1 == t2
@@ -527,16 +528,28 @@ let rec type_check_stmts
 									^ classid ^ "." ^ string_of_var_id mthd.jliteid 
 									^ ". IfStmt inner statements fails, expression type mismatch:\n" 
 									^ string_of_jlite_stmt s ^ "\n")
+						end
 					| _ ->
 						failwith 
 							("\nType-check error in " 
 							^ classid ^ "." ^ string_of_var_id mthd.jliteid 
 							^ ". IfStmt checking fails, expression type mismatch:\n" 
 							^ string_of_jlite_stmt s ^ "\n")
-			(* | WhileStmt (e, s) -> *)
+				end
+				| WhileStmt (e, s1) ->
+					let (expr_type, expr_new) = (type_check_expr p env classid e) in
+					match expr_type with
+						BoolT ->
+							let (newrettype1, newstmt1) = type_check_stmts p env classid mthd s1 None in
+							(newrettype1, WhileStmt (expr_new, newstmt1))
+						| _ ->
+							failwith 
+								("\nType-check error in " 
+								^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+								^ ". WhileStmt checking fails, expression type mismatch:\n" 
+								^ string_of_jlite_stmt s ^ "\n")
 
-		(* _ -> Handle other Statement types
-		  ---- TODO ---- *)
+
 	  in let (newrettype, newstmt) = ( helper s) in
 	  match newrettype, tail_lst with
 		| Some t, head::tail -> 

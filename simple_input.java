@@ -138,11 +138,25 @@ class Hello2 {
       b = 2;
     }
 
-    if (a == b) {
+    if (a >= b) {
       return (a + 3);
     }
     else {
       return 2;
     }
+  }
+
+  Int m6() {
+    Int d;
+    while (1 == 1) {
+      if (2 == 2) {
+        return 3;
+      }
+      else {
+        d = 3;
+      }
+    }
+
+    return 3;
   }
 }
