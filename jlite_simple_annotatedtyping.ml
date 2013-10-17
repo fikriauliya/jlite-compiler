@@ -247,9 +247,6 @@ end
 (* Type check a list of method declarations 
   1) Determine if there is illegal overloading
   2) Find and return overloaded method names	
-
-    This simplified version always returns true
-	---  TODO  ---
 *)  
 let rec type_check_md_overloading 
 	(classid: class_name) (mdlst: md_decl list) = begin
@@ -410,7 +407,6 @@ let rec type_check_expr
   		println "Unknown";
   		(Unknown, e) 
   	end
-		 (* Handle other expresion types ---- TODO ---- *)
 	  in  helper exp
 
 (* Type check a list of statements and determine the return type.

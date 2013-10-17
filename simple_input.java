@@ -159,3 +159,17 @@ class Hello2 {
     }
   }
 }
+
+class ScopeTest {
+  Int a;
+
+  String m1(String a) {
+    return a;
+  }
+
+  Int m2(Int a) {
+    String b;
+
+    return a;
+  }
+}
