@@ -521,13 +521,8 @@ let rec type_check_stmts
 										^ classid ^ "." ^ string_of_var_id mthd.jliteid 
 										^ ". IfStmt inner statements fails, expression type mismatch:\n" 
 										^ string_of_jlite_stmt s ^ "\n")
-							| (None _, None _) -> (newrettype1, IfStmt (expr_new, s1, s2))
-							| _ -> 
-								failwith 
-									("\nType-check error in " 
-									^ classid ^ "." ^ string_of_var_id mthd.jliteid 
-									^ ". IfStmt inner statements fails, expression type mismatch:\n" 
-									^ string_of_jlite_stmt s ^ "\n")
+							| (None _, None _) -> (None, IfStmt (expr_new, s1, s2))
+							| _ -> (None, IfStmt (expr_new, s1, s2))
 						end
 					| _ ->
 						failwith 
