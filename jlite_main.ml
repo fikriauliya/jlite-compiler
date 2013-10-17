@@ -4,7 +4,7 @@
 (* ===================================================== *)
 
 open Jlite_simple_annotatedtyping
-(* open Jlite_simple_ir3converter *)
+open Jlite_simple_ir3converter
 
 open Ir3_structs
 
@@ -32,8 +32,8 @@ let process prog =
 		print_string (Jlite_structs.string_of_jlite_program prog);
 		let typedprog= (Jlite_simple_annotatedtyping.type_check_jlite_program prog) in
 		print_string (Jlite_structs.string_of_jlite_program typedprog);
-    (* let ir3prog = (Jlite_simple_ir3converter.convert prog) in *)
-    (* print_string (Ir3_structs.string_of_ir3_program ir3prog); *)
+    let ir3prog = (Jlite_simple_ir3converter.jlite_program_to_IR3 prog) in
+    print_string (Ir3_structs.string_of_ir3_program ir3prog);
 	end
 let _ = 
  begin
