@@ -322,7 +322,7 @@ let rec type_check_expr
 		| BinaryExp (op, e1, e2) ->
 			let (e1_t, e1_new) = (helper e1) in
 			let (e2_t, e2_new) = (helper e2) in
-			if (e1_t == e2_t)
+			if (compare e1_t e2_t) == 0
 			then
 				match op with
 					RelationalOp _ -> (BoolT, BinaryExp (op, e1_new, e2_new))
@@ -477,7 +477,7 @@ let rec type_check_stmts
 				println (string_of_jlite_type expr_type);
 				println (string_of_jlite_type vi_type);
 
-				if (expr_type == vi_type)
+				if (compare expr_type vi_type) == 0
 					then (None, AssignStmt (vi_new, expr_new))
 					else
 						failwith 
@@ -491,7 +491,7 @@ let rec type_check_stmts
 			| AssignFieldStmt (e1, e2) ->
 				let (expr1_type, expr1_new) = (type_check_expr p env classid e1) in
 				let (expr2_type, expr2_new) = (type_check_expr p env classid e2) in
-				if (expr1_type == expr2_type)
+				if (compare expr1_type expr2_type) == 0
 					then (None, AssignFieldStmt (expr1_new, expr2_new))
 					else
 						failwith 
@@ -510,7 +510,7 @@ let rec type_check_stmts
 						begin
 						match (newrettype1, newrettype2) with
 							(Some t1, Some t2) -> 
-								if t1 == t2
+								if (compare t1 t2) == 0
 									then (newrettype1, IfStmt (expr_new, s1, s2))
 									else failwith 
 										("\nType-check error in " 

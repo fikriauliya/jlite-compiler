@@ -170,6 +170,6 @@ class ScopeTest {
   Int m2(Int a) {
     String b;
 
-    return a;
+    return a + a;
   }
 }
