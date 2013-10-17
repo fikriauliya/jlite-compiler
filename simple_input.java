@@ -155,8 +155,7 @@ class Hello2 {
       else {
         d = 3;
       }
+      return 3;
     }
-
-    return 3;
   }
 }
