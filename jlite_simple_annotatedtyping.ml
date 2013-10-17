@@ -505,12 +505,6 @@ let rec type_check_stmts
 						^ string_of_jlite_stmt s ^ "\n")
 			| IfStmt (e, s1, s2) ->
 				let (expr_type, expr_new) = (type_check_expr p env classid e) in
-				println (string_of_jlite_expr e);
-				let a = match expr_new with
-					BinaryExp _ -> println "BinaryExp"; 2
-					| _ -> 3
-				in
-				println (string_of_jlite_type expr_type);
 				match expr_type with
 					BoolT ->
 						let (newrettype1, newstmt1) = type_check_stmts p env classid mthd s1 None in
@@ -539,9 +533,7 @@ let rec type_check_stmts
 							^ classid ^ "." ^ string_of_var_id mthd.jliteid 
 							^ ". IfStmt checking fails, expression type mismatch:\n" 
 							^ string_of_jlite_stmt s ^ "\n")
-	(* | IfStmt of jlite_exp * (jlite_stmt list) * (jlite_stmt list)
-	| WhileStmt of jlite_exp * (jlite_stmt list)
-	*)
+			(* | WhileStmt (e, s) -> *)
 
 		(* _ -> Handle other Statement types
 		  ---- TODO ---- *)
