@@ -327,7 +327,9 @@ let rec type_check_expr
 			let (e2_t, e2_new) = (helper e2) in
 			if (e1_t == e2_t)
 			then
-				(e1_t, BinaryExp (op, e1_new, e2_new))
+				match op with
+					RelationalOp _ -> (BoolT, BinaryExp (op, e1_new, e2_new))
+					| _ -> (e1_t, BinaryExp (op, e1_new, e2_new))
 			else
 				failwith 
 					("\nType-check error in BinaryExp: " ^ (string_of_jlite_expr e) ^ "\n") 
@@ -513,15 +515,24 @@ let rec type_check_stmts
 					BoolT ->
 						let (newrettype1, newstmt1) = type_check_stmts p env classid mthd s1 None in
 						let (newrettype2, newstmt2) = type_check_stmts p env classid mthd s2 None in
-						if (newrettype1 == newrettype2)
-						then
-							(newrettype1, IfStmt (expr_new, s1, s2))
-						else
-							failwith 
-								("\nType-check error in " 
-								^ classid ^ "." ^ string_of_var_id mthd.jliteid 
-								^ ". IfStmt inner statements fails, expression type mismatch:\n" 
-								^ string_of_jlite_stmt s ^ "\n")
+						
+						println "----------------------";
+						match (newrettype1, newrettype2) with
+							(Some t1, Some t2) -> 
+								if t1 == t2
+									then (newrettype1, IfStmt (expr_new, s1, s2))
+									else failwith 
+										("\nType-check error in " 
+										^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+										^ ". IfStmt inner statements fails, expression type mismatch:\n" 
+										^ string_of_jlite_stmt s ^ "\n")
+							| (None _, None _) -> (newrettype1, IfStmt (expr_new, s1, s2))
+							| _ -> 
+								failwith 
+									("\nType-check error in " 
+									^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+									^ ". IfStmt inner statements fails, expression type mismatch:\n" 
+									^ string_of_jlite_stmt s ^ "\n")
 					| _ ->
 						failwith 
 							("\nType-check error in " 

@@ -132,10 +132,17 @@ class Hello2 {
     b = 3;
 
     if (a == b) {
-      return 3;
+      a = 3;
     }
     else {
-      return 4;
+      b = 2;
+    }
+
+    if (a == b) {
+      return (a + 3);
+    }
+    else {
+      return 2;
     }
   }
 }
