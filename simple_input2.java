@@ -6,6 +6,7 @@ class MainC {
 
 class Test {
   Int d;
+  Test t;
 
   Int m1 () {
     return 2;
@@ -50,5 +51,9 @@ class Test {
 
   Test m8() {
     return this;
+  }
+
+  Test m9() {
+    return this.d;
   }
 }
