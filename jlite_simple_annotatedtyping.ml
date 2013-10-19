@@ -442,8 +442,7 @@ let rec type_check_stmts
 		let rec helper s : (jlite_type option * jlite_stmt) =
 			match s with
 			| ReturnStmt e ->  
-				let (expr_type, exprnew) = 
-				 (type_check_expr p env classid e) in
+				let (expr_type, exprnew) = (type_check_expr p env classid e) in
 				begin
 				println "ReturnStmt";
 				match expr_type with
@@ -492,11 +491,15 @@ let rec type_check_stmts
 				if (compare expr_type vi_type) == 0
 					then (None, AssignStmt (vi_new, expr_new))
 					else
-						failwith 
-						("\nType-check error in " 
-						^ classid ^ "." ^ string_of_var_id mthd.jliteid 
-						^ ". AssignStmt fails, type mismatch:\n" 
-						^ string_of_jlite_stmt s ^ "\n")
+						begin
+							match expr_type with
+								(ObjectT "null") -> (None, AssignStmt (vi_new, expr_new))
+								| _ -> failwith 
+									("\nType-check error in " 
+									^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+									^ ". AssignStmt fails, type mismatch:\n" 
+									^ string_of_jlite_stmt s ^ "\n")
+						end
 			| MdCallStmt e ->
 				let (expr_type, expr_new) = (type_check_expr p env classid e) in
 				(None, MdCallStmt expr_new)
@@ -506,14 +509,17 @@ let rec type_check_stmts
 				if (compare expr1_type expr2_type) == 0
 					then (None, AssignFieldStmt (expr1_new, expr2_new))
 					else
-						failwith 
-						("\nType-check error in " 
-						^ classid ^ "." ^ string_of_var_id mthd.jliteid 
-						^ ". AssignFieldStmt fails, type mismatch:\n" 
-						^ string_of_jlite_stmt s ^ "\n")
+						begin
+							match expr2_type with
+								(ObjectT "null") -> (None, AssignFieldStmt (expr1_new, expr2_new))
+								| _ -> failwith 
+									("\nType-check error in " 
+									^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+									^ ". AssignFieldStmt fails, type mismatch:\n" 
+									^ string_of_jlite_stmt s ^ "\n")
+						end
 			| IfStmt (e, s1, s2) ->
-				let (
-				expr_type, expr_new) = (type_check_expr p env classid e) in
+				let (expr_type, expr_new) = (type_check_expr p env classid e) in
 				begin
 				match expr_type with
 					BoolT ->
@@ -599,12 +605,16 @@ let type_check_mthd_decl p env cname m : md_decl = begin
 				^ string_of_jlite_type m.rettype ^ ". \n")
 			| Some (ObjectT t1), (ObjectT t2) -> 
 				if ((String.compare t1 t2) != 0) 
-				then failwith 
-					("\nType-check error in " ^ cname ^ "." 
-					^ string_of_var_id m.jliteid 
-					^ ". Type mismatch. Return type of method " 
-					^ "is different from declared type "
-					^ string_of_jlite_type m.rettype ^ t1 ^ ". \n")
+				then 
+					if (compare t1 "null") == 0 then
+						true
+					else 
+						failwith 
+							("\nType-check error in " ^ cname ^ "." 
+							^ string_of_var_id m.jliteid 
+							^ ". Type mismatch. Return type of method " 
+							^ "is different from declared type "
+							^ string_of_jlite_type m.rettype ^ t1 ^ ". \n")
 				else true
 			| Some t1, t2 -> 
 				if (t1!= t2) 

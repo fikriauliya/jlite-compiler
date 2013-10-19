@@ -64,6 +64,8 @@ class Test {
   Test m11() {
     Test ret;
     ret = new Test();
-    return ret;
+    ret = NULL;
+    ret.t = NULL;
+    return NULL;
   }
 }

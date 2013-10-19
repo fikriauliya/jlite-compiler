@@ -154,8 +154,9 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
           | ObjectCreate v -> 
             let new_expr = ObjectCreate3 v in
             (ir3_expr_to_id3 new_expr t [] [] toid3)
-          | NullWord _ -> println "NullWord"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
-          (* TODO *)
+          | NullWord -> 
+            let new_expr = Idc3Expr (Var3 "null") in
+            (ir3_expr_to_id3 new_expr t [] [] toid3)
         end
       | _ -> begin
         (* TODO *)
