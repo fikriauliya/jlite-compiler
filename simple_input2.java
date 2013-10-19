@@ -60,4 +60,10 @@ class Test {
   Int m10() {
     return m8(2).t.d + m9(4+2,2,5);
   }
+
+  Test m11() {
+    Test ret;
+    ret = new Test();
+    return ret;
+  }
 }

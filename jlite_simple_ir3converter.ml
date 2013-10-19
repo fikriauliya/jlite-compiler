@@ -113,7 +113,7 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             (ir3_expr_to_id3 (Idc3Expr (StringLiteral3 v)) StringT [] [] toid3)
 
           (* OK *)
-          | Var v -> (jlite_var_id_to_IR3Expr classid v toidc3)
+          | Var v -> (jlite_var_id_to_IR3Expr classid v toid3)
           (* OK *)
           | BinaryExp (op,arg1,arg2) -> 
             let (arg1IR3,vars1,stmts1) = (helper arg1 true false) in
@@ -150,8 +150,10 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
 
             let new_expr = MdCall3 (mtd_name, (Var3 "this")::new_idc3s) in
             (ir3_expr_to_id3 new_expr t new_vars new_stmts toidc3)
-            (* println "FieldAccess"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3) *)
-          | ObjectCreate _ -> println "ObjectCreate"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
+
+          | ObjectCreate v -> 
+            let new_expr = ObjectCreate3 v in
+            (ir3_expr_to_id3 new_expr t [] [] toid3)
           | NullWord _ -> println "NullWord"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           (* TODO *)
         end
