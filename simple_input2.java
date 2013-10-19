@@ -48,7 +48,7 @@ class Test {
     return ret;
   }
 
-  Int m8() {
+  Test m8() {
     return this;
   }
 }

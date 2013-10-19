@@ -130,9 +130,11 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             let newExpr = UnaryExp3(op, arg1Idc3) in 
             (ir3_expr_to_id3 newExpr t vars1 stmts1 toidc3)
 
+          (* OK *)
           | ThisWord _ -> 
-
-            println "ThisWord"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
+            println "ThisWord"; 
+            (jlite_var_id_to_IR3Expr classid (TypedVarId ("this", (ObjectT classid), 2)) toidc3)
+            
           | FieldAccess _ -> println "FieldAccess"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           | ObjectCreate _ -> println "ObjectCreate"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           | MdCall _ -> println "MdCall"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
