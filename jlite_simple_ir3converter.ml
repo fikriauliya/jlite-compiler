@@ -62,29 +62,16 @@ let jlite_var_id_to_IR3Expr (classid: class_name) (v:var_id) (toid3:bool):(ir3_e
       else let newExpr = Idc3Expr (Var3 id) in
         (newExpr ,[], []) 
 
-let dummy_ir3_type = 
-  Unknown
-
-let dummy_var_decl3 = 
-  (dummy_ir3_type, "id3")
-
-let dummy_cdata3 = 
-  ("cname3", [dummy_var_decl3])
-
-let dummy_ir3_stmt =
-  Label3 0
-
-let dummy_md_decl3 = 
-  { 
-    id3= "id3"; 
-    rettype3= dummy_ir3_type;
-    params3= [dummy_var_decl3];
-    localvars3= [dummy_var_decl3];
-    ir3stmts= [dummy_ir3_stmt];
-   }
-
-let jlite_var_decl_lst_to_ID3 (cvars: var_decl list): var_decl3 list =
-  [ dummy_var_decl3 ]
+let jlite_var_decl_lst_to_ID3 (cvars: var_decl list): var_decl3 list = begin
+  println "+jlite_var_decl_lst_to_ID3";
+  List.map (fun cvar -> 
+    match cvar with
+      (t, vid) ->
+        match vid with
+          SimpleVarId ret -> (t, ret)
+          | TypedVarId (ret, _, _) -> (t, ret)
+  ) cvars
+end
 
 
 (* If you look at the specifications of the Jlite and IR3 language you will see that 
@@ -110,6 +97,12 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             (ir3_expr_to_id3 newExpr t (List.append vars1 vars2) (List.append stmts1 stmts2) toidc3)
           (* TODO *)
         end
+      | _ -> begin
+        println "Not implemented yet";
+        (* Dummy implementation *)
+        let newExpr = Idc3Expr (BoolLiteral3 true) in 
+        (ir3_expr_to_id3 newExpr BoolT [] [] toid3)
+      end
   in
     helper jexp toidc3 toid3
 
@@ -155,9 +148,8 @@ let jlite_md_decl_to_IR3 cname m : md_decl3 =
   }
 
 let jlite_program_to_IR3 (p:jlite_program): ir3_program =
-  (* TODO *)
-  let jlite_class_main_to_IR3 (cmain: class_main) : (cdata3 * md_decl3) =
-    (dummy_cdata3, dummy_md_decl3)
+  let jlite_class_main_to_IR3 ((cname,cmthd): class_main) : (cdata3 * md_decl3) =
+    ((cname, []), (jlite_md_decl_to_IR3 cname cmthd))
   in
 
   (* OK *)
