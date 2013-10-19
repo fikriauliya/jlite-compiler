@@ -123,13 +123,16 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             let newExpr = BinaryExp3 (op, arg1Idc3, arg2Idc3) in 
             (ir3_expr_to_id3 newExpr t (List.append vars1 vars2) (List.append stmts1 stmts2) toidc3)
 
+          (* OK *)
           | UnaryExp (op,arg1) -> 
             let (arg1IR3,vars1,stmts1) = (helper arg1 true false) in
             let arg1Idc3 = (ir3_expr_get_idc3 arg1IR3) in 
             let newExpr = UnaryExp3(op, arg1Idc3) in 
             (ir3_expr_to_id3 newExpr t vars1 stmts1 toidc3)
 
-          | ThisWord _ -> println "ThisWord"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
+          | ThisWord _ -> 
+
+            println "ThisWord"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           | FieldAccess _ -> println "FieldAccess"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           | ObjectCreate _ -> println "ObjectCreate"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           | MdCall _ -> println "MdCall"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)

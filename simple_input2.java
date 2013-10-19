@@ -49,6 +49,6 @@ class Test {
   }
 
   Int m8() {
-    return this.d;
+    return this;
   }
 }
