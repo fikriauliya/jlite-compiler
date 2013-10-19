@@ -53,7 +53,7 @@ class Test {
     return this;
   }
 
-  Test m9() {
-    return this.d;
+  Int m9() {
+    return this.d + 2;
   }
 }

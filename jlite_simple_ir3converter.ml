@@ -131,11 +131,16 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             (ir3_expr_to_id3 newExpr t vars1 stmts1 toidc3)
 
           (* OK *)
-          | ThisWord _ -> 
-            println "ThisWord"; 
+          | ThisWord -> 
             (jlite_var_id_to_IR3Expr classid (TypedVarId ("this", (ObjectT classid), 2)) toidc3)
-            
-          | FieldAccess _ -> println "FieldAccess"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
+
+          | FieldAccess (e, vid) -> 
+            let (new_ir3, new_vars, new_stmts) = (helper e true false) in
+            let new_id3 = (ir3_expr_get_id3 new_ir3) in
+            let new_expr = FieldAccess3(new_id3, string_of_var_id vid) in
+            (ir3_expr_to_id3 new_expr t new_vars new_stmts toidc3)
+
+            (* println "FieldAccess"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3) *)
           | ObjectCreate _ -> println "ObjectCreate"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           | MdCall _ -> println "MdCall"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           | NullWord _ -> println "NullWord"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)

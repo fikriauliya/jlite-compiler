@@ -373,7 +373,8 @@ let rec type_check_expr
 			(found_method.rettype, TypedExp(e1, found_method.rettype))
 		end
 		| FieldAccess (e1, v1) ->
-			let otype = match e1 with
+			let (otype, oexp) = helper e1 in
+			(* let otype = match e1 with
 				| Var var -> 
 					let (otype, oid) = (find_var_decl_type env var) in
 					otype
@@ -397,13 +398,13 @@ let rec type_check_expr
 			  (* | NullWord -> println "NullWord"; Unknown *)
 			  (* TODO: check this *)
 			  | TypedExp _ -> println "TypedExp";  Unknown
-			in
+			in *)
 			let field_name =  (extract_var_name v1) in
 
 			match otype with
 				ObjectT class_name ->
 					let (field_type, field_var_id) = find_field p class_name field_name in
-					(field_type, (TypedExp ((FieldAccess (e1, v1)), field_type)))
+					(field_type, (TypedExp ((FieldAccess (oexp, v1)), field_type)))
 				| _ -> 
 					(Unknown, e1)
 
