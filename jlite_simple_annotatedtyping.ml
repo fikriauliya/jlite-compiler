@@ -300,19 +300,23 @@ end
     and a new TypedExpes	ion *)  
 let rec type_check_expr 
 	(p: jlite_program)(env: var_decl list) 
-	(classid: class_name) (exp:jlite_exp) : (jlite_type * jlite_exp) = 
-
+	(classid: class_name) (exp:jlite_exp) : (jlite_type * jlite_exp) = begin
+		
+	println "type_check_expr";
 	let rec helper e 
 	: (jlite_type * jlite_exp) =
 		match e with
 		| BoolLiteral v -> (BoolT, (TypedExp (e, BoolT)))
-		| IntLiteral v -> (IntT, (TypedExp (e, IntT)))
+		| IntLiteral v -> 
+			println "IntLiteral";
+			(IntT, (TypedExp (e, IntT)))
 		| StringLiteral v -> (StringT, (TypedExp (e, StringT)))
 		| ThisWord -> 
 			((ObjectT classid), TypedExp (e, (ObjectT classid)))
 		| NullWord -> 
 			((ObjectT "null") , TypedExp (e, (ObjectT "null")))
 		| Var v -> 
+			println "Var";
 			let (vtyp, vid) =(find_var_decl_type env v) in
 			(vtyp, TypedExp (Var vid, vtyp)) 
 		| ObjectCreate c -> 
@@ -325,14 +329,14 @@ let rec type_check_expr
 			if (compare e1_t e2_t) == 0
 			then
 				match op with
-					RelationalOp _ -> (BoolT, BinaryExp (op, e1_new, e2_new))
-					| _ -> (e1_t, BinaryExp (op, e1_new, e2_new))
+					RelationalOp _ -> (BoolT, TypedExp(BinaryExp (op, e1_new, e2_new), BoolT))
+					| _ -> (e1_t, TypedExp(BinaryExp (op, e1_new, e2_new), e1_t))
 			else
 				failwith 
 					("\nType-check error in BinaryExp: " ^ (string_of_jlite_expr e) ^ "\n") 
 		| UnaryExp (op ,e1) ->
 			let (e1_t, e1_new) = helper e1 in
-			(e1_t, UnaryExp (op, e1_new))
+			(e1_t, TypedExp(UnaryExp (op, e1_new), e1_t))
 		| MdCall (e1, params) -> begin
 			let params_type = List.map (fun x -> 
 				match x with
@@ -366,7 +370,7 @@ let rec type_check_expr
 			in
 			(* println (string_of_jlite_expr e1); *)
 			(* println (extract_var_name found_method.jliteid); *)
-			(found_method.rettype, e1)
+			(found_method.rettype, TypedExp(e1, found_method.rettype))
 		end
 		| FieldAccess (e1, v1) ->
 			let otype = match e1 with
@@ -408,6 +412,7 @@ let rec type_check_expr
   		(Unknown, e) 
   	end
 	  in  helper exp
+end
 
 (* Type check a list of statements and determine the return type.
    Exceptions are thrown when a statement does not type check 
@@ -434,6 +439,7 @@ let rec type_check_stmts
 				let (expr_type, exprnew) = 
 				 (type_check_expr p env classid e) in
 				begin
+				println "ReturnStmt";
 				match expr_type with
 				| Unknown -> 
 					failwith 
