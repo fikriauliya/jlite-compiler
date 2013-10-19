@@ -26,38 +26,30 @@ let id3_of_md_decl = :
 let id3_of_class_decl = class_name * (var_decl list) * (md_decl list) :
 let id3_of_class_main = class_name * md_decl : *)
 
-let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:jlite_stmt list): 
-  (var_decl3 list * ir3_stmt list) =
-  match stmtlst with
-    | [] -> ([], [])    
-    | s::lst ->
-      let rec helper s: (var_decl3 list * ir3_stmt list) =
-        match s with
-        | ReturnVoidStmt -> ([], [ReturnVoidStmt3])
-        | ReturnStmt e -> 
-          let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e true true) in 
-          let retIR3 = (ReturnStmt3 (iR3Expr_get_id3 expr3)) in 
-          (exprvars, exprstmts @ [retIR3])
-        | AssignStmt (id,e) -> 
-          let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e false false) in 
-          begin
-          let assignIR3 = 
-            match id with
-              | TypedVarId (id1,t,1) -> 
-                AssignFieldStmt3 (FieldAccess3 ("this",id1), expr3)
-              | TypedVarId (id1,_,2) | SimpleVarId id1 -> 
-                (AssignStmt3 (id1, expr3))
-          in (exprvars, exprstmts@[assignIR3])
-          end 
-      in 
-      let (vars,stmts) = (helper s) in
-      let (tailvars,tailstmts) = (jlite_stmts_to_IR3_Stmts classid mthd lst) in
-      (vars @ tailvars, stmts @ tailstmts) 
-
-let ir3_expr_to_id3 (exp: ir3_exp) (t: jlite_type) (var1: var_decl3 list) (var1: var_decl3 list) 
+(* 
+ir3expr_to_id3 reduces an ir3 expr (exp) which is not necesarily of the form Idc3Expr (Var3 id) 
+to an expression of the form Idc3Expr (Var3 id) if the parameter is true. In order to do so it will
+a) create a fresh variable name
+b) then will create an AssignStmt3 with the new variable as the left hand side and the exp received as parameter as the right hand side
+c) will return the Idc3Expr (Var3 newvar) and the new statements and var declaration if any. *)
+let ir3_expr_to_id3 (exp: ir3_exp) (t: jlite_type) (var: var_decl3 list) (stmts: ir3_stmt list) 
   (toid3: bool): (ir3_exp * var_decl3 list * ir3_stmt list) =
+  if toid3 == true
+  then
+    (*TODO*)
+    (exp, var, stmts)
+  else
+    (exp, var, stmts)
 
 let ir3_expr_get_idc3 (exp: ir3_exp): idc3 =
+  match exp with
+    Idc3Expr ret -> ret
+    | _ -> failwith ("\nir3_expr_get_idc3: The given parameter is not idc3 expr\n")
+
+let ir3_expr_get_id3 (exp: ir3_exp): id3 =
+  match (ir3_expr_get_idc3 exp) with
+    Var3 ret -> ret
+    | _ -> failwith ("\nir3_expr_get_id3: The given parameter is not idc3 expr Var\n")
 
 let jlite_var_id_to_IR3Expr (classid: class_name) (v:var_id) (toid3:bool):(ir3_exp * var_decl3 list * ir3_stmt list) =
   match v with
@@ -70,6 +62,35 @@ let jlite_var_id_to_IR3Expr (classid: class_name) (v:var_id) (toid3:bool):(ir3_e
       else let newExpr = Idc3Expr (Var3 id) in
         (newExpr ,[], []) 
 
+let dummy_ir3_type = 
+  Unknown
+
+let dummy_var_decl3 = 
+  (dummy_ir3_type, "id3")
+
+let dummy_cdata3 = 
+  ("cname3", [dummy_var_decl3])
+
+let dummy_ir3_stmt =
+  Label3 0
+
+let dummy_md_decl3 = 
+  { 
+    id3= "id3"; 
+    rettype3= dummy_ir3_type;
+    params3= [dummy_var_decl3];
+    localvars3= [dummy_var_decl3];
+    ir3stmts= [dummy_ir3_stmt];
+   }
+
+let jlite_var_decl_lst_to_ID3 (cvars: var_decl list): var_decl3 list =
+  [ dummy_var_decl3 ]
+
+
+(* If you look at the specifications of the Jlite and IR3 language you will see that 
+expressions need to be reduced to different forms. 
+Some Jlite exp willl be transformed to an exp3, others to an idc3 such as the operands for a binary expression, 
+and others need to be reduced to an id3 such as: (Jlite)return exp -> (IR3)return id3. *)
 let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:bool) (toid3:bool): (ir3_exp * var_decl3 list * ir3_stmt list) =
   let rec helper (je:jlite_exp) (toidc3:bool) (toid3:bool): (ir3_exp * var_decl3 list * ir3_stmt list)  =
     match je with
@@ -87,8 +108,40 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             let arg2Idc3 = (ir3_expr_get_idc3 arg2IR3) in 
             let newExpr = BinaryExp3 (op, arg1Idc3, arg2Idc3) in 
             (ir3_expr_to_id3 newExpr t (List.append vars1 vars2) (List.append stmts1 stmts2) toidc3)
+          (* TODO *)
+        end
   in
     helper jexp toidc3 toid3
+
+let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:jlite_stmt list): 
+  (var_decl3 list * ir3_stmt list) =
+  match stmtlst with
+    | [] -> ([], [])    
+    | s::lst ->
+      (* Convert ONE statement *)
+      (* Return variables and new IR3 statements *)
+      let rec helper s: (var_decl3 list * ir3_stmt list) =
+        match s with
+        | ReturnVoidStmt -> ([], [ReturnVoidStmt3])
+        | ReturnStmt e -> 
+          let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e true true) in 
+          let retIR3 = (ReturnStmt3 (ir3_expr_get_id3 expr3)) in 
+          (exprvars, exprstmts @ [retIR3])
+        | AssignStmt (id,e) -> 
+          let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e false false) in 
+          begin
+          let assignIR3 = 
+            match id with
+              | TypedVarId (id1,t,1) -> 
+                AssignFieldStmt3 (FieldAccess3 ("this",id1), expr3)
+              | TypedVarId (id1,_,2) | SimpleVarId id1 -> 
+                (AssignStmt3 (id1, expr3))
+          in (exprvars, exprstmts@[assignIR3])
+          end 
+      in 
+      let (vars,stmts) = (helper s) in
+      let (tailvars,tailstmts) = (jlite_stmts_to_IR3_Stmts classid mthd lst) in
+      (vars @ tailvars, stmts @ tailstmts) 
 
 (* OK *)
 let jlite_md_decl_to_IR3 cname m : md_decl3 = 
@@ -100,43 +153,19 @@ let jlite_md_decl_to_IR3 cname m : md_decl3 =
     localvars3= (jlite_var_decl_lst_to_ID3 m.localvars) @ new_vars; 
     ir3stmts=new_stmts;
   }
-} 
-
-let dummy_ir3_type = 
-  Unknown
-
-let dummy_var_decl3 = 
-  (dummy_ir3_type, "id3")
-
-let dummy_cdata3 = 
-  ("cname3", [dummy_var_decl3])
-
-let dummy_ir3_stmt =
-  Label3 "label3"
-
-let dummy_md_decl3 = 
-  { 
-    id3= "id3"; 
-    rettype3= dummy_ir3_type;
-    params3= [dummy_var_decl3];
-    localvars3= [dummy_var_decl3];
-    ir3stmts= [dummy_ir3_stmt];
-   }
-
-let jlite_var_decl_lst_to_ID3 (cvars: var_decl list): var_decl3 list =
-  [ dummy_var_decl3 ]
 
 let jlite_program_to_IR3 (p:jlite_program): ir3_program =
   (* TODO *)
-  let jlite_class_main_to_IR3 (cmain: class_main) : (cdata3 * md_decl3 list) =
-    (dummy_cdata3, [dummy_md_decl3])
+  let jlite_class_main_to_IR3 (cmain: class_main) : (cdata3 * md_decl3) =
+    (dummy_cdata3, dummy_md_decl3)
+  in
 
   (* OK *)
   let rec jlite_class_decl_to_IR3((cname,cvars,cmthds) : class_decl) : (cdata3 * md_decl3 list) =
     let rec helper mthdlst : (md_decl3 list) =
       match mthdlst with 
       | [] -> []
-      | m::tail_rest -> ( cname m) :: ( helper tail_rest)
+      | m::tail_rest -> (jlite_md_decl_to_IR3 cname m) :: ( helper tail_rest)
     in 
     ((cname, (jlite_var_decl_lst_to_ID3 cvars)), (helper cmthds))
   in begin
