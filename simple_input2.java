@@ -49,11 +49,15 @@ class Test {
     return ret;
   }
 
-  Test m8() {
+  Test m8(Int a) {
     return this;
   }
 
-  Int m9() {
+  Int m9(Int a, Int b, Int c) {
     return this.d + 2;
+  }
+
+  Int m10() {
+    return m8(2).t.d + m9(4+2,2,5);
   }
 }

@@ -277,3 +277,9 @@ let string_of_jlite_program
 	^ (string_of_class_main mainclass) ^ " \n\n" 
 	^ (string_of_list classes string_of_class_decl "\n")
 	^ "\n\n======= End of JLite Program =======\n\n"
+
+
+let extract_var_name (jliteid:var_id) =
+  match jliteid with
+    | SimpleVarId var_name -> var_name
+    | TypedVarId (var_name, typ, scope) -> var_name

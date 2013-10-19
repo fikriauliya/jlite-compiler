@@ -140,9 +140,18 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             let new_expr = FieldAccess3(new_id3, string_of_var_id vid) in
             (ir3_expr_to_id3 new_expr t new_vars new_stmts toidc3)
 
+          | MdCall ((Var v), params) -> 
+            let mtd_name = extract_var_name v in
+            let new_args = List.map (fun x -> helper x true false) params in
+            let (new_idc3s, new_vars, new_stmts) = List.fold_left
+              (fun (accum_idc3, accum_vars, accum_stmts) (new_ir3, new_vars, new_stmts) -> 
+                (accum_idc3 @ [(ir3_expr_get_idc3 new_ir3)], accum_vars @ new_vars, accum_stmts @ new_stmts)
+              ) ([],[],[]) new_args in
+
+            let new_expr = MdCall3 (mtd_name, (Var3 "this")::new_idc3s) in
+            (ir3_expr_to_id3 new_expr t new_vars new_stmts toidc3)
             (* println "FieldAccess"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3) *)
           | ObjectCreate _ -> println "ObjectCreate"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
-          | MdCall _ -> println "MdCall"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           | NullWord _ -> println "NullWord"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           (* TODO *)
         end
