@@ -101,15 +101,20 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
         begin
         println "jlite_expr_to_IR3Expr: TypedExp";
         match te with
+          (* OK *)
           | BoolLiteral v -> 
             let newExpr = Idc3Expr (BoolLiteral3 v) in 
             (ir3_expr_to_id3 newExpr BoolT [] [] toid3)
+          (* OK *)
           | IntLiteral v -> 
             (ir3_expr_to_id3 (Idc3Expr (IntLiteral3 v)) IntT [] [] toid3)
+          (* OK *)
           | StringLiteral v -> 
             (ir3_expr_to_id3 (Idc3Expr (StringLiteral3 v)) StringT [] [] toid3)
 
+          (* OK *)
           | Var v -> (jlite_var_id_to_IR3Expr classid v toidc3)
+          (* OK *)
           | BinaryExp (op,arg1,arg2) -> 
             let (arg1IR3,vars1,stmts1) = (helper arg1 true false) in
             let (arg2IR3,vars2,stmts2) = (helper arg2 true false) in
@@ -118,12 +123,16 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             let newExpr = BinaryExp3 (op, arg1Idc3, arg2Idc3) in 
             (ir3_expr_to_id3 newExpr t (List.append vars1 vars2) (List.append stmts1 stmts2) toidc3)
 
-          | UnaryExp _ -> println "UnaryExp"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
-          | BinaryExp _ -> println "BinaryExp"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
+          | UnaryExp (op,arg1) -> 
+            let (arg1IR3,vars1,stmts1) = (helper arg1 true false) in
+            let arg1Idc3 = (ir3_expr_get_idc3 arg1IR3) in 
+            let newExpr = UnaryExp3(op, arg1Idc3) in 
+            (ir3_expr_to_id3 newExpr t vars1 stmts1 toidc3)
+
+          | ThisWord _ -> println "ThisWord"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           | FieldAccess _ -> println "FieldAccess"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           | ObjectCreate _ -> println "ObjectCreate"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           | MdCall _ -> println "MdCall"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
-          | ThisWord _ -> println "ThisWord"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           | NullWord _ -> println "NullWord"; (ir3_expr_to_id3 (Idc3Expr (BoolLiteral3 true)) BoolT [] [] toid3)
           (* TODO *)
         end

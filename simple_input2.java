@@ -24,11 +24,31 @@ class Test {
     Int a;
     Int b;
     Int c;
-    
+
     a = 2;
     b = 3;
     c = a + b;
 
     return c; 
+  }
+
+  String m5() {
+    return "Hello";
+  }
+
+  Bool m6() {
+    Bool ret;
+    ret = false;
+    return ret;
+  }
+
+  Bool m7() {
+    Bool ret;
+    ret = !false;
+    return ret;
+  }
+
+  Int m8() {
+    return this.d;
   }
 }
