@@ -154,7 +154,15 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
           end
           | MdCall (e1, params) -> 
             println "MdCall";
-            let (e1_new,e1_vars,e1_stmts) = helper e1 true false in
+            (* let (e1_new,e1_vars,e1_stmts) = helper e1 true true in *)
+            let (e1_new,e1_vars,e1_stmts) = match e1 with
+              TypedExp (x, _) -> match x with
+                Var v -> helper e1 true false
+                | FieldAccess (e1, v2) -> begin
+                  helper e1 true false
+                end
+            in
+
             let mtd_name = match e1 with
               TypedExp (x, _) -> match x with
                 Var v ->  extract_var_name v
@@ -183,10 +191,9 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             (ir3_expr_to_id3 new_expr t (e1_vars @ new_vars) (e1_stmts @ new_stmts) toidc3)
 
           | ObjectCreate v -> begin
-            println "ObjectCreate";
             let new_expr = ObjectCreate3 v in
             println "ObjectCreate";
-            (ir3_expr_to_id3 new_expr t [] [] true)
+            (ir3_expr_to_id3 new_expr t [] [] toidc3)
           end
           | NullWord -> 
             let new_expr = Idc3Expr (Var3 "null") in
@@ -218,7 +225,8 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
           let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e true true) in 
           let retIR3 = (ReturnStmt3 (ir3_expr_get_id3 expr3)) in 
           (exprvars, exprstmts @ [retIR3])
-        | AssignStmt (id,e) -> 
+        | AssignStmt (id,e) -> begin
+          println "AssignStmt";
           let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e false false) in 
           let assignIR3 = 
             match id with
@@ -227,6 +235,7 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
               | TypedVarId (id1,_,2) | SimpleVarId id1 -> 
                 (AssignStmt3 (id1, expr3))
           in (exprvars, exprstmts@[assignIR3])
+        end
         | AssignFieldStmt (e1, e2) -> begin
           let (expr_1,exprvars_1,exprstmts_1) = (jlite_expr_to_IR3Expr classid e1 false false) in 
           let (expr_2,exprvars_2,exprstmts_2) = (jlite_expr_to_IR3Expr classid e2 false false) in 
