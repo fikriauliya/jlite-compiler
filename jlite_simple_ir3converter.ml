@@ -233,9 +233,10 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
 
           (exprvars @ vars_1, [label_begin] @ exprstmts @ [IfStmt3 (expr3, label_true_num)] @ [goto_end] @ [label_true] @ ir3_stmt1 @ [goto_begin] @ [label_end])
         end
-        | ReadStmt _ -> begin
-          println "ReadStmt";
-          ([], [ReturnVoidStmt3])
+        | ReadStmt vid -> begin
+          let (expr3, exprvars, exprstmts) = (jlite_var_id_to_IR3Expr classid vid true) in
+          let read_ir3 = (ReadStmt3 (ir3_expr_get_id3 expr3)) in 
+          (exprvars, exprstmts @ [read_ir3])
         end
         | PrintStmt _ -> begin
           println "PrintStmt";

@@ -113,4 +113,10 @@ class Test {
     }
     return a;
   }
+
+  Int m15() {
+    // Int d;
+    readln(d);
+    return d;
+  }
 }
