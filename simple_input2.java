@@ -84,4 +84,33 @@ class Test {
     }
     return 4;
   }
+
+  Int m13() {
+    Int i;
+    i = 0;
+    while (i < 10) {
+      if (i == 9) {
+        return 9;
+      } 
+      else {
+        i = i + 1;
+      }
+    }
+    return 11;
+  }
+
+  Int m14() {
+    Int a;
+    Int b;
+
+    while (a < b) {
+      a = 1;
+      if (a > 0) {
+        return a;
+      } else {
+        a = 2;
+      }
+    }
+    return a;
+  }
 }
