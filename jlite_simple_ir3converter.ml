@@ -42,10 +42,12 @@ b) then will create an AssignStmt3 with the new variable as the left hand side a
 c) will return the Idc3Expr (Var3 newvar) and the new statements and var declaration if any. *)
 let ir3_expr_to_id3 (exp: ir3_exp) (ret_type: jlite_type) (var: var_decl3 list) (stmts: ir3_stmt list) 
   (toid3: bool): (ir3_exp * var_decl3 list * ir3_stmt list) = begin
-  println "ir3_expr_to_id3";
+  println "+ir3_expr_to_id3";
+  println (string_of_bool toid3);
   if toid3 == true
   then
     let new_id = new_varname() in
+    println "1";
     let new_stmt = AssignStmt3 (new_id, exp) in
     let new_var_decl = (ret_type, new_id) in
     let new_exp = Idc3Expr (Var3 new_id) in
@@ -144,8 +146,8 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             (jlite_var_id_to_IR3Expr classid (TypedVarId ("this", (ObjectT classid), 2)) toidc3)
           end
           | FieldAccess (e, vid) -> begin 
-            println "+FieldAccess";
-            let (new_ir3, new_vars, new_stmts) = (helper e true false) in
+            println "FieldAccess";
+            let (new_ir3, new_vars, new_stmts) = (helper e true true) in
             let new_id3 = (ir3_expr_get_id3 new_ir3) in
             let new_expr = FieldAccess3(new_id3, string_of_var_id vid) in
             (ir3_expr_to_id3 new_expr t new_vars new_stmts toidc3)
@@ -180,9 +182,12 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             let new_expr = MdCall3 (mtd_name, (ir3_expr_get_idc3 e1_new)::new_idc3s) in
             (ir3_expr_to_id3 new_expr t (e1_vars @ new_vars) (e1_stmts @ new_stmts) toidc3)
 
-          | ObjectCreate v -> 
+          | ObjectCreate v -> begin
+            println "ObjectCreate";
             let new_expr = ObjectCreate3 v in
-            (ir3_expr_to_id3 new_expr t [] [] toid3)
+            println "ObjectCreate";
+            (ir3_expr_to_id3 new_expr t [] [] true)
+          end
           | NullWord -> 
             let new_expr = Idc3Expr (Var3 "null") in
             (ir3_expr_to_id3 new_expr t [] [] false)
