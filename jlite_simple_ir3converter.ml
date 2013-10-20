@@ -183,7 +183,7 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
                 (new_ir3, new_vars, new_stmts, mtd_name)
               end
             in *)
-            let new_args = List.map (fun x -> helper x true false) params in
+            let new_args = List.map (fun x -> helper x true true) params in
             let (new_idc3s, new_vars, new_stmts) = List.fold_left
               (fun (accum_idc3, accum_vars, accum_stmts) (new_ir3, new_vars, new_stmts) -> 
                 (accum_idc3 @ [(ir3_expr_get_idc3 new_ir3)], accum_vars @ new_vars, accum_stmts @ new_stmts)
