@@ -273,7 +273,7 @@ aexp:
 
 term: 	
 	term MULTIPLY ftr	{ BinaryExp (AritmeticOp "*",$1,$3) }
-	| term DIVIDE ftr 	{ BinaryExp (AritmeticOp "+",$1,$3) }
+	| term DIVIDE ftr 	{ BinaryExp (AritmeticOp "/",$1,$3) }
 	| ftr				{ $1 }	
 ;
 

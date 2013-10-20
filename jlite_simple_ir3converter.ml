@@ -126,8 +126,9 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
           | Var v -> (jlite_var_id_to_IR3Expr classid v toid3)
           (* OK *)
           | BinaryExp (op,arg1,arg2) -> 
-            let (arg1IR3,vars1,stmts1) = (helper arg1 true false) in
-            let (arg2IR3,vars2,stmts2) = (helper arg2 true false) in
+            println "BinaryExp";
+            let (arg1IR3,vars1,stmts1) = (helper arg1 true true) in
+            let (arg2IR3,vars2,stmts2) = (helper arg2 true true) in
             let arg1Idc3 = (ir3_expr_get_idc3 arg1IR3) in 
             let arg2Idc3 = (ir3_expr_get_idc3 arg2IR3) in 
             let newExpr = BinaryExp3 (op, arg1Idc3, arg2Idc3) in 
@@ -230,6 +231,7 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
         match s with
         | ReturnVoidStmt -> ([], [ReturnVoidStmt3])
         | ReturnStmt e -> 
+          println "ReturnStmt";
           let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e true true) in 
           let retIR3 = (ReturnStmt3 (ir3_expr_get_id3 expr3)) in 
           (exprvars, exprstmts @ [retIR3])
