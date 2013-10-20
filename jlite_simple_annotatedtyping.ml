@@ -60,7 +60,10 @@ let filter_dups lst =
 	List.map (fun x -> List.hd x) (List.filter (fun x -> (List.length x) > 1) duplicates_group)
 
 (* Compare two variable ids *) 	
-let compare_var_ids v1 v2 =
+let compare_var_ids v1 v2 = begin
+	println "compare_var_ids";
+	println (extract_var_name v1);
+	println (extract_var_name v2);
 	match v1, v2 with
 	| SimpleVarId id1, SimpleVarId id2 -> 
 		((String.compare id1 id2) == 0)
@@ -70,7 +73,8 @@ let compare_var_ids v1 v2 =
 		((String.compare id1 id2) == 0)		
 	| TypedVarId (id1, t1, s1), TypedVarId (id2, t2 , s2) ->
 		((String.compare id1 id2) == 0) && (s1 == s2)
-		
+end
+
 (* Find the declared type of a variable *) 		
 (* TODO: consider scoping *)
 let rec find_var_decl_type 
@@ -134,7 +138,11 @@ let rec find_field
 						List.find 
 							(fun x -> 
 								match x with
-									_, f_id -> (compare (extract_var_name f_id) field_name) == 0
+									_, f_id -> 
+										println "Comparing";
+										println (extract_var_name f_id);
+										println field_name;
+										(compare (extract_var_name f_id) field_name) == 0
 							)
 							fs
 			in
@@ -317,7 +325,10 @@ let rec type_check_expr
 			((ObjectT "null") , TypedExp (e, (ObjectT "null")))
 		| Var v -> 
 			println "Var";
+			println (extract_var_name v);
 			let (vtyp, vid) =(find_var_decl_type env v) in
+			println "Found";
+			println (extract_var_name vid);
 			(vtyp, TypedExp (Var vid, vtyp)) 
 		| ObjectCreate c -> 
 			println "ObjectCreate";
@@ -341,17 +352,20 @@ let rec type_check_expr
 			let (e1_t, e1_new) = helper e1 in
 			(e1_t, TypedExp(UnaryExp (op, e1_new), e1_t))
 		| MdCall (e1, params) -> begin
-			println "MdCall";
+			println "MdCall helper";
 			(* let (e1_t, e1_new) = helper e1 in *)
+			println "MdCall helper return";
 			let (params_t, params_e) = (List.fold_left 
 				(fun (accum_t, accum_e) (new_raw_e) -> 
 					let (new_t, new_e) = helper new_raw_e in
 					(accum_t @ [new_t], accum_e @ [new_e]))
 				([],[])  params) in
-			let found_method = match e1 with
+			let (typed_e1, found_method) = match e1 with
 				| Var name -> 
 					let method_name = extract_var_name name in
-					find_method p classid method_name params_t
+					let found_method = find_method p classid method_name params_t in
+					let (vtyp, vid) =(find_var_decl_type env name) in
+					(TypedExp (Var vid, vtyp), found_method) 
 				(* | UnaryExp _ -> println "UnaryExp";  SimpleVarId "" *)
 			  (* | BinaryExp _ -> println "BinaryExp"; SimpleVarId "" *)
 			  | FieldAccess (e2, v2) -> 
@@ -360,7 +374,8 @@ let rec type_check_expr
 			  	match t3 with
 			  		ObjectT classid -> 
 			  			println ("Class: " ^ classid);
-			  			find_method p classid (extract_var_name v2) params_t
+			  			let found_method = find_method p classid (extract_var_name v2) params_t in
+			  			(TypedExp (FieldAccess (e3, v2), t3), found_method)
 
 			  (* | ObjectCreate class_name -> println "ObjectCreate"; find_method p "Hello1" "w" [IntT]
 			  | MdCall (md, mp) -> println "MdCall"; find_method p "Hello1" "w" [IntT]
@@ -374,7 +389,7 @@ let rec type_check_expr
 			in
 			(* println (string_of_jlite_expr e1); *)
 			(* println (extract_var_name found_method.jliteid); *)
-			(found_method.rettype, TypedExp(MdCall(e1, params_e), found_method.rettype))
+			(found_method.rettype, TypedExp(MdCall(typed_e1, params_e), found_method.rettype))
 		end
 		| FieldAccess (e1, v1) ->
 			println "FieldAccess";
@@ -405,12 +420,14 @@ let rec type_check_expr
 			  | TypedExp _ -> println "TypedExp";  Unknown
 			in *)
 			let field_name =  (extract_var_name v1) in
-
+			println field_name;
 			match otype with
 				ObjectT class_name ->
+					println class_name;
 					let (field_type, field_var_id) = find_field p class_name field_name in
 					(field_type, (TypedExp ((FieldAccess (oexp, v1)), field_type)))
 				| _ -> 
+					println "Unknown type";
 					(Unknown, e1)
 
   	| _ -> begin

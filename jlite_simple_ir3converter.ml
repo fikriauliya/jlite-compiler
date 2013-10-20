@@ -139,25 +139,46 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             (ir3_expr_to_id3 newExpr t vars1 stmts1 toidc3)
 
           (* OK *)
-          | ThisWord -> 
+          | ThisWord -> begin
+            println "ThisWord";
             (jlite_var_id_to_IR3Expr classid (TypedVarId ("this", (ObjectT classid), 2)) toidc3)
-
-          | FieldAccess (e, vid) -> 
+          end
+          | FieldAccess (e, vid) -> begin 
+            println "+FieldAccess";
             let (new_ir3, new_vars, new_stmts) = (helper e true false) in
             let new_id3 = (ir3_expr_get_id3 new_ir3) in
             let new_expr = FieldAccess3(new_id3, string_of_var_id vid) in
             (ir3_expr_to_id3 new_expr t new_vars new_stmts toidc3)
-
-          | MdCall ((Var v), params) -> 
-            let mtd_name = extract_var_name v in
+          end
+          | MdCall (e1, params) -> 
+            println "MdCall";
+            let (e1_new,e1_vars,e1_stmts) = helper e1 true false in
+            let mtd_name = match e1 with
+              TypedExp (x, _) -> match x with
+                Var v ->  extract_var_name v
+                | FieldAccess (e2, v2) -> begin
+                  extract_var_name v2
+                end
+            in
+            (* let (new_ir3, new_vars, new_stmts, mtd_name) = match e1 with
+              Var v ->  (Idc3Expr (Var3 "this"), [], [], (extract_var_name v))
+              | FieldAccess (e2, v2) -> begin
+                println "FieldAccess";
+                let mtd_name = extract_var_name v2 in
+                println ("mtd_name: " ^ mtd_name);
+                println ("var_name: " ^ (string_of_jlite_expr e2));
+                let (new_ir3, new_vars, new_stmts) = (helper e2 true false) in
+                (new_ir3, new_vars, new_stmts, mtd_name)
+              end
+            in *)
             let new_args = List.map (fun x -> helper x true false) params in
             let (new_idc3s, new_vars, new_stmts) = List.fold_left
               (fun (accum_idc3, accum_vars, accum_stmts) (new_ir3, new_vars, new_stmts) -> 
                 (accum_idc3 @ [(ir3_expr_get_idc3 new_ir3)], accum_vars @ new_vars, accum_stmts @ new_stmts)
               ) ([],[],[]) new_args in
 
-            let new_expr = MdCall3 (mtd_name, (Var3 "this")::new_idc3s) in
-            (ir3_expr_to_id3 new_expr t new_vars new_stmts toidc3)
+            let new_expr = MdCall3 (mtd_name, (ir3_expr_get_idc3 e1_new)::new_idc3s) in
+            (ir3_expr_to_id3 new_expr t (e1_vars @ new_vars) (e1_stmts @ new_stmts) toidc3)
 
           | ObjectCreate v -> 
             let new_expr = ObjectCreate3 v in
@@ -166,6 +187,10 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             let new_expr = Idc3Expr (Var3 "null") in
             (ir3_expr_to_id3 new_expr t [] [] false)
         end
+      | ThisWord -> begin
+        println "ThisWord";
+        failwith "\nUnhandled Exception\n";
+      end
       | _ -> begin
         (* TODO *)
         println "jlite_expr_to_IR3Expr: Others";

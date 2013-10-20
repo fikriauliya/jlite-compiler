@@ -1,5 +1,9 @@
 class MainC {
    void main (){
+      Test t;
+      Int x;
+      t = new Test();
+      x = t.m1();
       return ;
    }
 }
@@ -127,5 +131,9 @@ class Test {
 
   void m17() {
     m16();
+  }
+
+  Test m18() {
+    return m11().t;
   }
 }
