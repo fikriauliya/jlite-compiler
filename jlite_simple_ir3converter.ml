@@ -154,21 +154,22 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
           end
           | MdCall (e1, params) -> 
             println "MdCall";
+            println ("e1: " ^ (string_of_jlite_expr e1));
             (* let (e1_new,e1_vars,e1_stmts) = helper e1 true true in *)
             let (e1_new,e1_vars,e1_stmts) = match e1 with
-              TypedExp (x, _) -> match x with
-                Var v -> helper e1 true false
-                | FieldAccess (e1, v2) -> begin
-                  helper e1 true false
-                end
+              Var v -> (Idc3Expr (Var3 "this"), [], [])
+              | TypedExp (e, _) -> match e with
+                FieldAccess (e1, v2) -> begin
+                helper e1 true false
+              end
             in
 
             let mtd_name = match e1 with
-              TypedExp (x, _) -> match x with
-                Var v ->  extract_var_name v
-                | FieldAccess (e2, v2) -> begin
-                  extract_var_name v2
-                end
+              Var v ->  extract_var_name v
+              | TypedExp (e, _) -> match e with
+                FieldAccess (e2, v2) -> begin
+                extract_var_name v2
+              end
             in
             (* let (new_ir3, new_vars, new_stmts, mtd_name) = match e1 with
               Var v ->  (Idc3Expr (Var3 "this"), [], [], (extract_var_name v))
@@ -199,10 +200,17 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             let new_expr = Idc3Expr (Var3 "null") in
             (ir3_expr_to_id3 new_expr t [] [] false)
         end
-      | ThisWord -> begin
-        println "ThisWord";
-        failwith "\nUnhandled Exception\n";
-      end
+      | Var v -> (jlite_var_id_to_IR3Expr classid v toid3)
+      (* | FieldAccess (e, vid) -> begin 
+        let e_type = match e with
+          TypedExp (_, t) -> t
+        in
+        println "FieldAccess";
+        let (new_ir3, new_vars, new_stmts) = (helper e true true) in
+        let new_id3 = (ir3_expr_get_id3 new_ir3) in
+        let new_expr = FieldAccess3(new_id3, string_of_var_id vid) in
+        (ir3_expr_to_id3 new_expr e_type new_vars new_stmts toidc3)
+      end *)
       | _ -> begin
         (* TODO *)
         println "jlite_expr_to_IR3Expr: Others";

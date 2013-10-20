@@ -8,6 +8,22 @@ class MainC {
    }
 }
 
+
+class Compute {
+  
+   Int square(Int a){
+     return a*a;
+   }
+   
+   Int add(Int a, Int b){
+    return a+b;
+   }
+   
+   Int addSquares(Int a, Int b){
+    return add(square(a),square(b));
+   }
+}
+
 class Test {
   Int d;
   Test t;

@@ -352,9 +352,8 @@ let rec type_check_expr
 			let (e1_t, e1_new) = helper e1 in
 			(e1_t, TypedExp(UnaryExp (op, e1_new), e1_t))
 		| MdCall (e1, params) -> begin
-			println "MdCall helper";
+			println ("MdCall helper: " ^ (string_of_jlite_expr e1));
 			(* let (e1_t, e1_new) = helper e1 in *)
-			println "MdCall helper return";
 			let (params_t, params_e) = (List.fold_left 
 				(fun (accum_t, accum_e) (new_raw_e) -> 
 					let (new_t, new_e) = helper new_raw_e in
@@ -364,8 +363,7 @@ let rec type_check_expr
 				| Var name -> 
 					let method_name = extract_var_name name in
 					let found_method = find_method p classid method_name params_t in
-					let (vtyp, vid) =(find_var_decl_type env name) in
-					(TypedExp (Var vid, vtyp), found_method) 
+					(Var name, found_method) 
 				(* | UnaryExp _ -> println "UnaryExp";  SimpleVarId "" *)
 			  (* | BinaryExp _ -> println "BinaryExp"; SimpleVarId "" *)
 			  | FieldAccess (e2, v2) -> 
