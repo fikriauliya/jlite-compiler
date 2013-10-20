@@ -7,12 +7,20 @@ let println line = begin
 end
 
 let varcount = ref 0 
+let labelcount = ref 0
 let fresh_var () = 
 (  
   varcount:=!varcount+1; 
-  (string_of_int !varcount))
+  (string_of_int !varcount)
+)
+let fresh_label () = 
+(  
+  labelcount:=!labelcount+1; 
+  !labelcount
+)
 
 let new_varname() = "_t" ^ fresh_var()
+let new_label() = fresh_label()
 
 (* let id3_of_class_name = string :
 let id3_of_jlite_op =  :
@@ -190,12 +198,40 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
                 (AssignStmt3 (id1, expr3))
           in (exprvars, exprstmts@[assignIR3])
         | AssignFieldStmt (e1, e2) -> begin
-          println "AssignFieldStmt";
           let (expr_1,exprvars_1,exprstmts_1) = (jlite_expr_to_IR3Expr classid e1 false false) in 
           let (expr_2,exprvars_2,exprstmts_2) = (jlite_expr_to_IR3Expr classid e2 false false) in 
           let assignIR3 = (AssignFieldStmt3 (expr_1, expr_2)) in
             (exprvars_1 @ exprvars_2, exprstmts_1 @ exprstmts_2 @ [assignIR3])
           (* ([], [ReturnVoidStmt3]) *)
+        end
+        | IfStmt (e, stmt_true, stmt_false) -> begin
+          let (expr3, exprvars, exprstmts) = (jlite_expr_to_IR3Expr classid e true true) in
+
+          let (vars_1, ir3_stmt1) = jlite_stmts_to_IR3_Stmts classid mthd stmt_false in
+          let label_true_num = (new_label()) in
+          let label_end_num = (new_label()) in
+          let goto_end = (GoTo3 label_end_num) in
+          let label_true = (Label3 label_true_num) in
+          let (vars_2, ir3_stmt2) = jlite_stmts_to_IR3_Stmts classid mthd stmt_true in
+          let label_end = (Label3 label_end_num) in
+
+          (exprvars @ vars_1 @ vars_2, exprstmts @ [IfStmt3 (expr3, label_true_num)] @ ir3_stmt1 @ [goto_end] @ [label_true] @ ir3_stmt2 @ [label_end])
+        end
+        | WhileStmt _ -> begin
+          println "WhileStmt";
+          ([], [ReturnVoidStmt3])
+        end
+        | ReadStmt _ -> begin
+          println "ReadStmt";
+          ([], [ReturnVoidStmt3])
+        end
+        | PrintStmt _ -> begin
+          println "PrintStmt";
+          ([], [ReturnVoidStmt3])
+        end
+        | MdCallStmt _ -> begin
+          println "MdCallStmt";
+          ([], [ReturnVoidStmt3])
         end
       in 
       let (vars,stmts) = (helper s) in
