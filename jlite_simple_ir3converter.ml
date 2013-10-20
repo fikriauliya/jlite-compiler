@@ -156,7 +156,7 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             (ir3_expr_to_id3 new_expr t [] [] toid3)
           | NullWord -> 
             let new_expr = Idc3Expr (Var3 "null") in
-            (ir3_expr_to_id3 new_expr t [] [] toid3)
+            (ir3_expr_to_id3 new_expr t [] [] false)
         end
       | _ -> begin
         (* TODO *)
@@ -182,7 +182,6 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
           (exprvars, exprstmts @ [retIR3])
         | AssignStmt (id,e) -> 
           let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e false false) in 
-          begin
           let assignIR3 = 
             match id with
               | TypedVarId (id1,t,1) -> 
@@ -190,7 +189,14 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
               | TypedVarId (id1,_,2) | SimpleVarId id1 -> 
                 (AssignStmt3 (id1, expr3))
           in (exprvars, exprstmts@[assignIR3])
-          end 
+        | AssignFieldStmt (e1, e2) -> begin
+          println "AssignFieldStmt";
+          let (expr_1,exprvars_1,exprstmts_1) = (jlite_expr_to_IR3Expr classid e1 false false) in 
+          let (expr_2,exprvars_2,exprstmts_2) = (jlite_expr_to_IR3Expr classid e2 false false) in 
+          let assignIR3 = (AssignFieldStmt3 (expr_1, expr_2)) in
+            (exprvars_1 @ exprvars_2, exprstmts_1 @ exprstmts_2 @ [assignIR3])
+          (* ([], [ReturnVoidStmt3]) *)
+        end
       in 
       let (vars,stmts) = (helper s) in
       let (tailvars,tailstmts) = (jlite_stmts_to_IR3_Stmts classid mthd lst) in
