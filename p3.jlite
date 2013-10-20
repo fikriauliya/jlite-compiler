@@ -1,0 +1,98 @@
+class P3
+{
+    void main (Int a, Bool b, String c) {
+        println("Dummy statement to fulfill at least one statement requirement!");
+    }
+}
+
+class C1
+{
+    Bool x;
+    Bool y;
+    void doSomething() {
+        println("May I put some' \\ complicated \" string here please?\\");
+    }
+    Bool doSomething1() {
+        return x || y;
+    }
+    Bool doSomething2() {
+        return x && y;
+    }
+    Bool doSomething3(Bool z, Bool zz) {
+        return x || y || z || zz;
+    }
+    Bool doSomething4(Bool z, Bool zz) {
+        return x && y && z && zz;
+    }
+    Bool doSomething5() {
+        return !x || y && !!x || !!!!!!x;
+    }
+    Bool doSomething6() {
+        return !x || y && !!(x || !!!!!!x);
+    }
+}
+
+class C2
+{
+    Int x;
+    Int y;
+
+    Int doSomething1() {
+        return x + y;
+    }
+    Int doSomething2() {
+        return x * y;
+    }
+    Int doSomething3(Int z) {
+        return x + y + z;
+    }
+    Int doSomething4(Int z) {
+        return x * y * z;
+    }
+    Int doSomething5(Int z) {
+        return x * y + z;
+    }
+    Int doSomething6(Int z) {
+        return x + y * z;
+    }
+    Int doSomething7(Int z) {
+        return x + (y * z);
+    }
+    Int doSomething8(Int z) {
+        return (x + y) * z;
+    }
+    Int doSomething9(Int z) {
+        return (x + (y) * z);
+    }
+    Int doSomething10(Int z) {
+        return -z;
+    }
+    Int doSomething11(Int z) {
+        return --z;
+    }
+    Int doSomething12(Int z) {
+        return -(--(-z));
+    }
+}
+
+class C3
+{
+    Bool doSomething1(Int a, Int b) {
+        return a >= b;
+    }
+    Bool doSomething2(Int a, Int b) {
+        return a > b;
+    }
+    Bool doSomething3(Int a, Int b) {
+        return a <= b;
+    }
+    Bool doSomething4(Int a, Int b) {
+        return a < b;
+    }
+    Bool doSomething5(Int a, Int b) {
+        return a != b;
+    }
+    Bool doSomething6(Int a, Int b) {
+        return a == b;
+    }
+}

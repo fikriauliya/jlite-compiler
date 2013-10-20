@@ -1,0 +1,444 @@
+Parsing...
+test/p1.jlite
+
+======= JLite Program =======
+
+class P1{
+  void main(Int a){
+    Int dummy1;
+    String dummy2;
+    Int x;
+    AlwaysDivide ad;
+    AlwaysDivideRecursive adr;
+    println("Hello world");
+    x=0;
+    readln(x);
+    ad=new AlwaysDivide();
+    ad.min=x;
+    [ad.printDivide(100)];
+    [ad.doNothing()];
+    adr=new AlwaysDivideRecursive();
+    adr.min=x;
+    [adr.printDivideRecursive(100)];
+    println("Goodbye cruel world!");
+  }
+
+} 
+
+class DivideByX{
+  Int x;
+
+  Int divide(Int a){
+    Return [a,x](/);
+  }
+
+}
+class AlwaysDivide{
+  Int min;
+
+  void printDivide(Int start){
+    Int dummy1;
+    String dummy2;
+    While([start,min](>=)) {
+      println(start);
+      start=[start,2](/);
+    }
+  }
+
+
+  void doNothing(){
+    While(true) {
+      println("qqq");
+    }
+  }
+
+}
+class AlwaysDivideRecursive{
+  Int min;
+
+  void printDivideRecursive(Int start){
+    If([start,min](>=))
+    {
+      println(start);
+      [printDivideRecursive([start,2](/))];
+    }
+    else
+    {
+      Return;
+    }
+  }
+
+}
+class AlwaysDivideIterative{
+
+  Int printDivideIterative(Int start,Int end){
+    While([start,end](>)) {
+      If([start,end](==))
+      {
+        Return 9000;
+      }
+      else
+      {
+        start=[start,2](/);
+      }
+    }
+    Return 42;
+  }
+
+
+  AlwaysDivideIterative get(){
+    If(true)
+    {
+      Return new AlwaysDivideIterative();
+    }
+    else
+    {
+      println("aaa");
+      If(false)
+      {
+        println("falsefalse");
+        Return null;
+      }
+      else
+      {
+        println("falsetrue");
+        Return null;
+      }
+    }
+  }
+
+}
+class AlwaysDivideRecursiveFixed{
+
+  void printDivideRecursive(Int start){
+    If([start,2](>=))
+    {
+      println(start);
+      [this.printDivideRecursive([start,2](/))];
+    }
+    else
+    {
+      Return;
+    }
+  }
+
+}
+
+======= End of JLite Program =======
+
+
+======= JLite Program =======
+
+class P1{
+  void main(Int a){
+    Int dummy1;
+    String dummy2;
+    Int x;
+    AlwaysDivide ad;
+    AlwaysDivideRecursive adr;
+    println("Hello world");
+    (x:Int,2)=0;
+    readln((x:Int,2));
+    (ad:AlwaysDivide,2)=new AlwaysDivide():AlwaysDivide;
+    (ad:AlwaysDivide,2):AlwaysDivide.min:Int=(x:Int,2):Int;
+    [(ad:AlwaysDivide,2):AlwaysDivide.printDivide(100)]:void;
+    [(ad:AlwaysDivide,2):AlwaysDivide.doNothing()]:void;
+    (adr:AlwaysDivideRecursive,2)=new AlwaysDivideRecursive():AlwaysDivideRecursive;
+    (adr:AlwaysDivideRecursive,2):AlwaysDivideRecursive.min:Int=(x:Int,2):Int;
+    [(adr:AlwaysDivideRecursive,2):AlwaysDivideRecursive.printDivideRecursive(100)]:void;
+    println("Goodbye cruel world!");
+  }
+
+} 
+
+class DivideByX{
+  Int x;
+
+  Int divide(Int a){
+    Return [(a:Int,2):Int,(x:Int,1):Int](/):Int;
+  }
+
+}
+class AlwaysDivide{
+  Int min;
+
+  void printDivide(Int start){
+    Int dummy1;
+    String dummy2;
+    While([(start:Int,2):Int,(min:Int,1):Int](>=):Bool) {
+      println((start:Int,2):Int);
+      (start:Int,2)=[(start:Int,2):Int,2](/):Int;
+    }
+  }
+
+
+  void doNothing(){
+    While(true) {
+      println("qqq");
+    }
+  }
+
+}
+class AlwaysDivideRecursive{
+  Int min;
+
+  void printDivideRecursive(Int start){
+    If([(start:Int,2):Int,(min:Int,1):Int](>=):Bool)
+    {
+      println((start:Int,2):Int);
+      [printDivideRecursive([(start:Int,2):Int,2](/):Int)]:void;
+    }
+    else
+    {
+      Return;
+    }
+  }
+
+}
+class AlwaysDivideIterative{
+
+  Int printDivideIterative(Int start,Int end){
+    While([(start:Int,2):Int,(end:Int,2):Int](>):Bool) {
+      If([(start:Int,2):Int,(end:Int,2):Int](==):Bool)
+      {
+        Return 9000;
+      }
+      else
+      {
+        (start:Int,2)=[(start:Int,2):Int,2](/):Int;
+      }
+    }
+    Return 42;
+  }
+
+
+  AlwaysDivideIterative get(){
+    If(true)
+    {
+      Return new AlwaysDivideIterative():AlwaysDivideIterative;
+    }
+    else
+    {
+      println("aaa");
+      If(false)
+      {
+        println("falsefalse");
+        Return null:null;
+      }
+      else
+      {
+        println("falsetrue");
+        Return null:null;
+      }
+    }
+  }
+
+}
+class AlwaysDivideRecursiveFixed{
+
+  void printDivideRecursive(Int start){
+    If([(start:Int,2):Int,2](>=):Bool)
+    {
+      println((start:Int,2):Int);
+      [this:AlwaysDivideRecursiveFixed.printDivideRecursive([(start:Int,2):Int,2](/):Int)]:void;
+    }
+    else
+    {
+      Return;
+    }
+  }
+
+}
+
+======= End of JLite Program =======
+
+======= IR3 Program =======
+
+======= CData3 ======= 
+
+class P1{
+}
+
+class DivideByX{
+  Int x;
+}
+
+class AlwaysDivide{
+  Int min;
+}
+
+class AlwaysDivideRecursive{
+  Int min;
+}
+
+class AlwaysDivideIterative{
+}
+
+class AlwaysDivideRecursiveFixed{
+}
+
+=======  CMtd3 ======= 
+
+void main(P1 this,Int a){
+  Int dummy1;
+  String dummy2;
+  Int x;
+  AlwaysDivide ad;
+  AlwaysDivideRecursive adr;
+  Int _t1;
+  void _t2;
+  void _t3;
+  Int _t4;
+  void _t5;
+  println("Hello world");
+  x=0;
+  readln(x);
+  ad=new AlwaysDivide();
+  ad.min=x;
+  _t1=100;
+  _t2=[AlwaysDivide_printDivide_1(ad,_t1)];
+  _t2;
+  _t3=[AlwaysDivide_doNothing_2(ad)];
+  _t3;
+  adr=new AlwaysDivideRecursive();
+  adr.min=x;
+  _t4=100;
+  _t5=[AlwaysDivideRecursive_printDivideRecursive_1(adr,_t4)];
+  _t5;
+  println("Goodbye cruel world!");
+}
+
+Int DivideByX_divide_1(DivideByX this,Int a){
+  Int _t6;
+  Int _t7;
+  _t6=this.x;
+  _t7=[a,_t6](/);
+  Return _t7;
+}
+
+void AlwaysDivide_printDivide_1(AlwaysDivide this,Int start){
+  Int dummy1;
+  String dummy2;
+  Int _t9;
+  Bool _t10;
+  Int _t11;
+  Int _t12;
+ Label 4:
+  _t9=this.min;
+  _t10=[start,_t9](>=);
+  If(_t10) goto 6;
+  goto 5;
+ Label 6:
+  println(start);
+  _t11=2;
+  _t12=[start,_t11](/);
+  start=_t12;
+  goto 4;
+ Label 5:
+}
+
+void AlwaysDivide_doNothing_2(AlwaysDivide this){
+  Bool _t8;
+ Label 1:
+  _t8=true;
+  If(_t8) goto 3;
+  goto 2;
+ Label 3:
+  println("qqq");
+  goto 1;
+ Label 2:
+}
+
+void AlwaysDivideRecursive_printDivideRecursive_1(AlwaysDivideRecursive this,Int start){
+  Int _t13;
+  Bool _t14;
+  Int _t15;
+  Int _t16;
+  void _t17;
+  _t13=this.min;
+  _t14=[start,_t13](>=);
+  If(_t14) goto 7;
+  Return;
+  goto 8;
+ Label 7:
+  println(start);
+  _t15=2;
+  _t16=[start,_t15](/);
+  _t17=[AlwaysDivideRecursive_printDivideRecursive_1(this,_t16)];
+  _t17;
+ Label 8:
+}
+
+Int AlwaysDivideIterative_printDivideIterative_1(AlwaysDivideIterative this,Int start,Int end){
+  Bool _t21;
+  Bool _t22;
+  Int _t23;
+  Int _t24;
+  Int _t25;
+  Int _t26;
+ Label 15:
+  _t21=[start,end](>);
+  If(_t21) goto 17;
+  goto 16;
+ Label 17:
+  _t22=[start,end](==);
+  If(_t22) goto 13;
+  _t24=2;
+  _t25=[start,_t24](/);
+  start=_t25;
+  goto 14;
+ Label 13:
+  _t23=9000;
+  Return _t23;
+ Label 14:
+  goto 15;
+ Label 16:
+  _t26=42;
+  Return _t26;
+}
+
+AlwaysDivideIterative AlwaysDivideIterative_get_2(AlwaysDivideIterative this){
+  Bool _t18;
+  AlwaysDivideIterative _t19;
+  Bool _t20;
+  _t18=true;
+  If(_t18) goto 11;
+  println("aaa");
+  _t20=false;
+  If(_t20) goto 9;
+  println("falsetrue");
+  Return null;
+  goto 10;
+ Label 9:
+  println("falsefalse");
+  Return null;
+ Label 10:
+  goto 12;
+ Label 11:
+  _t19=new AlwaysDivideIterative();
+  Return _t19;
+ Label 12:
+}
+
+void AlwaysDivideRecursiveFixed_printDivideRecursive_1(AlwaysDivideRecursiveFixed this,Int start){
+  Int _t27;
+  Bool _t28;
+  Int _t29;
+  Int _t30;
+  void _t31;
+  _t27=2;
+  _t28=[start,_t27](>=);
+  If(_t28) goto 18;
+  Return;
+  goto 19;
+ Label 18:
+  println(start);
+  _t29=2;
+  _t30=[start,_t29](/);
+  _t31=[AlwaysDivideRecursiveFixed_printDivideRecursive_1(this,_t30)];
+  _t31;
+ Label 19:
+}
+
+======= End of IR3 Program =======
+

@@ -1,0 +1,81 @@
+class P2
+{
+    void main () {
+        Int dummy1;
+        Int dummy2;
+        Int dummy3;
+        String s1;
+        String s2;
+        C1 c1;
+        C2 c2;
+        C3 c3;
+        
+        dummy1 = 2;
+        dummy2 = 3;
+        dummy3 = 10;
+        
+        c1.m1();
+        c1.m2(dummy1 + dummy2);
+        c1.m3(dummy1 + dummy2, dummy3);
+        
+        println(s1);
+    }
+}
+
+// No variable
+class C1
+{
+    // No parameter
+    void m1() {
+        println("Hello");
+        return;
+    }
+    
+    // 1 parameter
+    void m2(Int a) {
+        println("Hello");
+    }
+    
+    // More than 1 parameters
+    void m3(Int a, Int b) {
+        println("Hello");
+    }
+}
+
+// 1 variable
+class C2
+{
+    String a;
+    
+    // No parameter
+    Int m1() {
+        return m2(10);
+    }
+    
+    // 1 parameter
+    Int m2(Int x) {
+        return x;
+    }
+    
+    // More than 1 parameter
+    C3 m3() {
+        return new C3();
+    }
+    
+    C3 m3(Int a) {
+        return this.m3();
+    }
+    
+    C3 m3(Bool a) {
+        return NULL;
+    }
+    
+    String m4() {
+        return a;
+    }
+}
+
+// Empty class is valid
+class C3
+{
+}

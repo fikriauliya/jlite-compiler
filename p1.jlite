@@ -1,0 +1,123 @@
+class P1
+{
+    void main (Int a) {
+        Int dummy1;
+        String dummy2;
+        Int x;
+        AlwaysDivide ad;
+        AlwaysDivideRecursive adr;
+        
+        println("Hello world");
+        
+        x = 0;
+        readln(x);
+
+        ad = new AlwaysDivide();
+        ad.min = x;
+        ad.printDivide(100);
+        ad.doNothing();
+
+        adr = new AlwaysDivideRecursive();
+        adr.min = x;
+        adr.printDivideRecursive(100);
+
+        println("Goodbye cruel world!");
+    }
+}
+
+// straightforward class
+class DivideByX
+{
+    Int x;    
+    Int divide(Int a) {
+        return a / x;
+    }
+}
+
+// while statement
+class AlwaysDivide
+{
+    Int min;
+    void printDivide(Int start) {
+        Int dummy1;
+        String dummy2;
+        while(start >= min) {
+            println(start);
+            start = start / 2;
+        }
+    }
+    
+    void doNothing() {
+        while(true) {
+            println("qqq");
+        }
+    }
+}
+
+/* if statement */
+class AlwaysDivideRecursive
+{
+    Int min;
+    void printDivideRecursive(Int start) {
+        if(start >= min) {
+            println(start);
+            printDivideRecursive(start / 2);
+        }
+        else {
+            return;
+        }
+    }
+}
+
+/* some multi-line
+comment containing * some //// complicated comments, hopefu*lly** can parse it// */
+
+/*here some more comment
+s to annoy people*****/
+class AlwaysDivideIterative
+{
+    Int printDivideIterative(Int start, Int end) {
+        while(start > end) {
+            if(start == end) {
+                return 9000;
+            }
+            else {
+                start = start / 2;
+            }
+        }
+        return 42;
+    }
+    
+    AlwaysDivideIterative get() {
+        if(true) {
+            return new AlwaysDivideIterative();
+        }
+        else {
+            println("aaa");
+            if(false) {
+                println("falsefalse");
+                return NULL;
+            }
+            else {
+                println("falsetrue");
+                return NULL;
+            }
+        }
+    }
+}
+
+
+/*here some more comment
+s to annoy people******/
+class AlwaysDivideRecursiveFixed
+{
+    void printDivideRecursive(Int start) {
+        if(start >= 2) {
+            println(start);
+            this.printDivideRecursive(start / 2);
+        }
+        else {
+            return;
+        }
+    }
+}

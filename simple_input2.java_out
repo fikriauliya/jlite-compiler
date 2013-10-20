@@ -1,0 +1,84 @@
+Parsing...
+test/simple_input2.java
+
+======= JLite Program =======
+
+class MainC{
+  void main(){
+    Test t;
+    Int x;
+    t=new Test();
+    x=[t.m1()];
+    Return;
+  }
+
+} 
+
+class Test{
+  Test t;
+  Int d;
+
+  Int m1(){
+    Return 2;
+  }
+
+}
+
+======= End of JLite Program =======
+
+
+======= JLite Program =======
+
+class MainC{
+  void main(){
+    Test t;
+    Int x;
+    (t:Test,2)=new Test():Test;
+    (x:Int,2)=[(t:Test,2):Test.m1()]:Int;
+    Return;
+  }
+
+} 
+
+class Test{
+  Test t;
+  Int d;
+
+  Int m1(){
+    Return 2;
+  }
+
+}
+
+======= End of JLite Program =======
+
+======= IR3 Program =======
+
+======= CData3 ======= 
+
+class MainC{
+}
+
+class Test{
+  Test t;
+  Int d;
+}
+
+=======  CMtd3 ======= 
+
+void main(MainC this){
+  Test t;
+  Int x;
+  t=new Test();
+  x=[Test_m1_1(t)];
+  Return;
+}
+
+Int Test_m1_1(Test this){
+  Int _t1;
+  _t1=2;
+  Return _t1;
+}
+
+======= End of IR3 Program =======
+

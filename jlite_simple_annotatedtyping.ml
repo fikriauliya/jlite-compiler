@@ -545,11 +545,18 @@ let rec type_check_stmts
 							(Some t1, Some t2) -> 
 								if (compare t1 t2) == 0
 									then (newrettype1, IfStmt (expr_new, newstmt1, newstmt2))
-									else failwith 
-										("\nType-check error in " 
-										^ classid ^ "." ^ string_of_var_id mthd.jliteid 
-										^ ". IfStmt inner statements fails, expression type mismatch:\n" 
-										^ string_of_jlite_stmt s ^ "\n")
+									else
+									begin
+										match (t1, t2) with
+											(ObjectT "null", _) -> (newrettype2, IfStmt (expr_new, newstmt1, newstmt2))	
+											| (_, ObjectT "null") -> (newrettype1, IfStmt (expr_new, newstmt1, newstmt2))
+											| _ -> 
+												failwith 
+													("\nType-check error in " 
+													^ classid ^ "." ^ string_of_var_id mthd.jliteid 
+													^ ". IfStmt inner statements fails, expression type mismatch:\n" 
+													^ string_of_jlite_stmt s ^ "\n")
+									end
 							| (None _, None _) -> (None, IfStmt (expr_new, newstmt1, newstmt2))
 							| _ -> (None, IfStmt (expr_new, newstmt1, newstmt2))
 						end
