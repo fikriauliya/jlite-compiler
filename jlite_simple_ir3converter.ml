@@ -136,7 +136,7 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
 
           (* OK *)
           | UnaryExp (op,arg1) -> 
-            let (arg1IR3,vars1,stmts1) = (helper arg1 true false) in
+            let (arg1IR3,vars1,stmts1) = (helper arg1 true true) in
             let arg1Idc3 = (ir3_expr_get_idc3 arg1IR3) in 
             let newExpr = UnaryExp3(op, arg1Idc3) in 
             (ir3_expr_to_id3 newExpr t vars1 stmts1 toidc3)
@@ -161,7 +161,7 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
               Var v -> (Idc3Expr (Var3 "this"), [], [])
               | TypedExp (e, _) -> match e with
                 FieldAccess (e1, v2) -> begin
-                helper e1 true false
+                helper e1 true true
               end
             in
 
@@ -247,8 +247,8 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
           in (exprvars, exprstmts@[assignIR3])
         end
         | AssignFieldStmt (e1, e2) -> begin
-          let (expr_1,exprvars_1,exprstmts_1) = (jlite_expr_to_IR3Expr classid e1 false false) in 
-          let (expr_2,exprvars_2,exprstmts_2) = (jlite_expr_to_IR3Expr classid e2 false false) in 
+          let (expr_1,exprvars_1,exprstmts_1) = (jlite_expr_to_IR3Expr classid e1 false true) in 
+          let (expr_2,exprvars_2,exprstmts_2) = (jlite_expr_to_IR3Expr classid e2 false true) in 
           let assignIR3 = (AssignFieldStmt3 (expr_1, expr_2)) in
             (exprvars_1 @ exprvars_2, exprstmts_1 @ exprstmts_2 @ [assignIR3])
           (* ([], [ReturnVoidStmt3]) *)
@@ -288,7 +288,7 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
           (exprvars, exprstmts @ [read_ir3])
         end
         | PrintStmt (e) -> begin
-          let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e true true) in 
+          let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e false false) in 
           let print_ir3 = (PrintStmt3 (ir3_expr_get_idc3 expr3)) in 
           (exprvars, exprstmts @ [print_ir3])
         end
@@ -303,12 +303,12 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
       (vars @ tailvars, stmts @ tailstmts) 
 
 (* OK *)
-let jlite_md_decl_to_IR3 cname m : md_decl3 = begin
+let jlite_md_decl_to_IR3 cname m counter : md_decl3 = begin
   println "========================================================";
   println (cname ^ " " ^ (string_of_var_id m.ir3id));
   let (new_vars,new_stmts) = (jlite_stmts_to_IR3_Stmts cname m m.stmts)
   in {   
-    id3= string_of_var_id m.ir3id;
+    id3= cname ^ "_" ^ (string_of_var_id m.ir3id) ^ "_" ^ (string_of_int counter);
     rettype3=m.rettype; 
     params3=(ObjectT cname, "this") :: (jlite_var_decl_lst_to_ID3 m.params);
     localvars3= (jlite_var_decl_lst_to_ID3 m.localvars) @ new_vars; 
@@ -318,17 +318,17 @@ end
 
 let jlite_program_to_IR3 (p:jlite_program): ir3_program =
   let jlite_class_main_to_IR3 ((cname,cmthd): class_main) : (cdata3 * md_decl3) =
-    ((cname, []), (jlite_md_decl_to_IR3 cname cmthd))
+    ((cname, []), (jlite_md_decl_to_IR3 cname cmthd 0))
   in
 
   (* OK *)
   let rec jlite_class_decl_to_IR3((cname,cvars,cmthds) : class_decl) : (cdata3 * md_decl3 list) =
-    let rec helper mthdlst : (md_decl3 list) =
+    let rec helper mthdlst counter : (md_decl3 list) =
       match mthdlst with 
       | [] -> []
-      | m::tail_rest -> (jlite_md_decl_to_IR3 cname m) :: ( helper tail_rest)
+      | m::tail_rest -> (jlite_md_decl_to_IR3 cname m counter) :: ( helper tail_rest (counter + 1))
     in 
-    ((cname, (jlite_var_decl_lst_to_ID3 cvars)), (helper cmthds))
+    ((cname, (jlite_var_decl_lst_to_ID3 cvars)), (helper cmthds 0))
   in begin
     let (main_class, classes) = p in 
     (* OK *)

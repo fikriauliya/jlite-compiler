@@ -572,7 +572,7 @@ let rec type_check_stmts
 					match expr_type with
 						BoolT ->
 							let (newrettype1, newstmt1) = type_check_stmts p env classid mthd s1 None in
-							(newrettype1, WhileStmt (expr_new, newstmt1))
+							(None, WhileStmt (expr_new, newstmt1))
 						| _ ->
 							failwith 
 								("\nType-check error in " 
