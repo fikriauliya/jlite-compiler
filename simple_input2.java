@@ -119,4 +119,9 @@ class Test {
     readln(d);
     return d;
   }
+
+  void m16() {
+    println (1+2);
+    return;
+  }
 }
