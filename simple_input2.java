@@ -124,4 +124,8 @@ class Test {
     println (1+2);
     return;
   }
+
+  void m17() {
+    m16();
+  }
 }
