@@ -1,40 +1,40 @@
 class MainC {
    void main (){
-      Test t;
-      Int x;
-      t = new Test();
-      x = t.m1();
+      // Test t;
+      // Int x;
+      // t = new Test();
+      // x = t.m1();
       return ;
    }
 }
 
 
-class Compute {
+// class Compute {
   
-   Int square(Int a){
-     return a*a;
-   }
+//    Int square(Int a){
+//      return a*a;
+//    }
    
-   Int add(Int a, Int b){
-    return a+b;
-   }
+//    Int add(Int a, Int b){
+//     return a+b;
+//    }
    
-   Int addSquares(Int a, Int b){
-    return add(square(a),square(b));
-   }
-}
+//    Int addSquares(Int a, Int b){
+//     return add(square(a),square(b));
+//    }
+// }
 
 class Test {
-  Int d;
-  Test t;
+  // Int d;
+  // Test t;
 
-  Int m1 () {
-    return 2;
-  }
+  // Int m1 () {
+  //   return 2;
+  // }
 
-  Int m19() {
-    return (new Test()).m1();
-  }
+  // Int m19() {
+  //   return (new Test()).m1();
+  // }
 
   // Int m2 () {
   //   Int c;
@@ -97,31 +97,31 @@ class Test {
   //   return ret;
   // }
 
-  Int m12() {
-    Int a ;
+  // Int m12() {
+  //   Int a ;
 
-    // a = 2;
-    if (1 > 3) {
-      a = 3;
-    } else {
-      a = 4;
-    }
-    return 4;
-  }
+  //   // a = 2;
+  //   if (1 > 3) {
+  //     a = 3;
+  //   } else {
+  //     a = 4;
+  //   }
+  //   return 4;
+  // }
 
-  Int m13() {
-    Int i;
-    i = 0;
-    while (i < 10) {
-      if (i == 9) {
-        return 9;
-      } 
-      else {
-        i = i + 1;
-      }
-    }
-    return 11;
-  }
+  // Int m13() {
+  //   Int i;
+  //   i = 0;
+  //   while (i < 10) {
+  //     if (i == 9) {
+  //       return 9;
+  //     } 
+  //     else {
+  //       i = i + 1;
+  //     }
+  //   }
+  //   return 11;
+  // }
 
   // Int m14() {
   //   Int a;
@@ -156,4 +156,16 @@ class Test {
   // Test m18() {
   //   return m11().t;
   // }
+
+  Bool m19() {
+    Bool res;
+    Int a;
+    Int b;
+    Int c;
+    Int d;
+    
+    // res = 1 > 2;
+    res = (a>b) && (b>c) && (c>d);
+    return res;
+  }
 }

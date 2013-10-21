@@ -6,6 +6,10 @@ let println line = begin
   (* printf "%s\n" line; *)
 end
 
+let println2 line = begin
+  printf "%s\n" line;
+end
+
 let varcount = ref 0 
 let labelcount = ref 0
 let fresh_var () = 
@@ -48,14 +52,13 @@ let ir3_expr_to_id3 (exp: ir3_exp) (ret_type: jlite_type) (var: var_decl3 list) 
   println (string_of_bool toid3);
   if toid3 == true
   then
-    let new_id = new_varname() in
-    println "1";
-    let new_stmt = AssignStmt3 (new_id, exp) in
-    let new_var_decl = (ret_type, new_id) in
-    let new_exp = Idc3Expr (Var3 new_id) in
+    let temp_id = new_varname() in
+    let new_stmt = AssignStmt3 (temp_id, exp) in
+    let new_var_decl = (ret_type, temp_id) in
+    let new_exp = Idc3Expr (Var3 temp_id) in
     (new_exp, var @ [new_var_decl], stmts @ [new_stmt])
   else
-    (exp, var, stmts)
+    (exp, var, stmts)    
 end
 
 let ir3_expr_get_idc3 (exp: ir3_exp): idc3 =
@@ -127,14 +130,43 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
           | Var v -> (jlite_var_id_to_IR3Expr classid v toid3)
           (* OK *)
           | BinaryExp (op,arg1,arg2) -> 
-            println "BinaryExp";
-            let (arg1IR3,vars1,stmts1) = (helper arg1 true true) in
-            let (arg2IR3,vars2,stmts2) = (helper arg2 true true) in
-            let arg1Idc3 = (ir3_expr_get_idc3 arg1IR3) in 
-            let arg2Idc3 = (ir3_expr_get_idc3 arg2IR3) in 
-            let newExpr = BinaryExp3 (op, arg1Idc3, arg2Idc3) in 
-            (ir3_expr_to_id3 newExpr t (List.append vars1 vars2) (List.append stmts1 stmts2) toidc3)
+            println2 "BinaryExp";
+            println2 ("==================================");
+            println2 (string_of_jlite_expr arg1);
+            println2 (string_of_jlite_expr arg2);
+            println2 ("==================================");
 
+            let (arg1IR3,vars1,stmts1) = (helper arg1 true true) in
+            let arg1Idc3 = (ir3_expr_get_idc3 arg1IR3) in 
+            begin
+              match op with
+                | (BooleanOp "&&") -> 
+                  let label_false_num = (new_label()) in
+                  let label_end_num = (new_label()) in
+                  println2 ("FALSE => " ^ (string_of_int label_false_num));
+                  println2 ("END => " ^ (string_of_int label_end_num));
+
+                  let if_stmt = IfStmt3 (BinaryExp3 ((RelationalOp "=="), arg1Idc3, (BoolLiteral3 false)), label_false_num) in
+                  let temp_var = new_varname() in
+
+                  let (arg2IR3,vars2,stmts2) = (helper arg2 true true) in
+                  (* let arg2Idc3 = (ir3_expr_get_idc3 arg2IR3) in  *)
+                  let true_assignment_stmt = AssignStmt3 (temp_var, arg2IR3) in
+
+                  let goto_end = (GoTo3 label_end_num) in
+                  let label_false = (Label3 label_false_num) in
+                  (* AssignStmt3 of id3 * ir3_exp *)
+                  let assign_false_stmt = AssignStmt3 (temp_var, (Idc3Expr (BoolLiteral3 false))) in
+                  let label_end = (Label3 label_end_num) in
+
+                  (ir3_expr_to_id3 (Idc3Expr (Var3 temp_var)) BoolT (vars1 @ vars2) 
+                    (stmts1 @ [if_stmt] @ stmts2 @ [true_assignment_stmt] @[goto_end] @ [label_false] @ [assign_false_stmt] @ [label_end]) toidc3)
+                | _ -> 
+                  let (arg2IR3,vars2,stmts2) = (helper arg2 true true) in
+                  let arg2Idc3 = (ir3_expr_get_idc3 arg2IR3) in 
+                  let newExpr = BinaryExp3 (op, arg1Idc3, arg2Idc3) in 
+                  (ir3_expr_to_id3 newExpr t (List.append vars1 vars2) (List.append stmts1 stmts2) toidc3)
+            end
           (* OK *)
           | UnaryExp (op,arg1) -> 
             let (arg1IR3,vars1,stmts1) = (helper arg1 true true) in
