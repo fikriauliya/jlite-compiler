@@ -3,7 +3,7 @@ open Ir3_structs
 open Printf
 
 let println line = begin
-  printf "%s\n" line;
+  (* printf "%s\n" line; *)
 end
 
 let varcount = ref 0 

@@ -10,7 +10,7 @@ open Jlite_structs
 open Printf
 
 let println line = begin
-	printf "%s\n" line;
+	(* printf "%s\n" line; *)
 end
 
 let rec compare_params_type (x:var_decl list) (y:var_decl list) =

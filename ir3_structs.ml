@@ -132,8 +132,7 @@ let rec string_of_idc3 e:string =
 let string_of_ir3_exp e:string =
   match e with
     | UnaryExp3 (op,arg) -> 
-		"(" ^ string_of_ir3_op op ^")
-		["^(string_of_idc3 arg)^"]"
+		"(" ^ string_of_ir3_op op ^")["^(string_of_idc3 arg)^"]"
     | BinaryExp3 (op,arg1,arg2) -> 
 		"[" ^(string_of_idc3 arg1)^","
 		^(string_of_idc3 arg2)^"](" 
