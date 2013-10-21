@@ -143,8 +143,6 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
                 | (BooleanOp "&&") -> 
                   let label_false_num = (new_label()) in
                   let label_end_num = (new_label()) in
-                  println2 ("FALSE => " ^ (string_of_int label_false_num));
-                  println2 ("END => " ^ (string_of_int label_end_num));
 
                   let if_stmt = IfStmt3 (BinaryExp3 ((RelationalOp "=="), arg1Idc3, (BoolLiteral3 false)), label_false_num) in
                   let temp_var = new_varname() in
@@ -161,6 +159,25 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
 
                   (ir3_expr_to_id3 (Idc3Expr (Var3 temp_var)) BoolT (vars1 @ vars2) 
                     (stmts1 @ [if_stmt] @ stmts2 @ [true_assignment_stmt] @[goto_end] @ [label_false] @ [assign_false_stmt] @ [label_end]) toidc3)
+                | (BooleanOp "||") -> 
+                  let label_true_num = (new_label()) in
+                  let label_end_num = (new_label()) in
+
+                  let if_stmt = IfStmt3 (BinaryExp3 ((RelationalOp "=="), arg1Idc3, (BoolLiteral3 true)), label_true_num) in
+                  let temp_var = new_varname() in
+
+                  let (arg2IR3,vars2,stmts2) = (helper arg2 true true) in
+                  (* let arg2Idc3 = (ir3_expr_get_idc3 arg2IR3) in  *)
+                  let true_assignment_stmt = AssignStmt3 (temp_var, arg2IR3) in
+
+                  let goto_end = (GoTo3 label_end_num) in
+                  let label_true = (Label3 label_true_num) in
+                  (* AssignStmt3 of id3 * ir3_exp *)
+                  let assign_false_stmt = AssignStmt3 (temp_var, (Idc3Expr (BoolLiteral3 true))) in
+                  let label_end = (Label3 label_end_num) in
+
+                  (ir3_expr_to_id3 (Idc3Expr (Var3 temp_var)) BoolT (vars1 @ vars2) 
+                    (stmts1 @ [if_stmt] @ stmts2 @ [true_assignment_stmt] @[goto_end] @ [label_true] @ [assign_false_stmt] @ [label_end]) toidc3)
                 | _ -> 
                   let (arg2IR3,vars2,stmts2) = (helper arg2 true true) in
                   let arg2Idc3 = (ir3_expr_get_idc3 arg2IR3) in 

@@ -163,9 +163,14 @@ class Test {
     Int b;
     Int c;
     Int d;
-    
+
+    Bool a1;
+    Bool a2;
+    Bool a3;
     // res = 1 > 2;
     res = (a>b) && (b>c) && (c>d);
+    println(res);
+    res = a1 || a2 && a3;
     return res;
   }
 }
