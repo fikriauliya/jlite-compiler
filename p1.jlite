@@ -111,13 +111,13 @@ class AlwaysDivideIterative
 s to annoy people******/
 class AlwaysDivideRecursiveFixed
 {
-    void printDivideRecursive(Int start) {
+    Int printDivideRecursive(Int start) {
         if(start >= 2) {
             println(start);
-            this.printDivideRecursive(start / 2);
+            return this.printDivideRecursive(start / 2);
         }
         else {
-            return;
+            return 2;
         }
     }
 }

@@ -87,18 +87,18 @@ class Hello1 {
   Int w(Int a) {
     return 0;
   }
-  // Int h (Int c, String s) {
-  //   return 5;
-  // }
-  // Int h (Int c, Int s) {
-  //   return 5;
-  // }
-  // Int h (Int c, Hello s) {
-  //   return 5;
-  // }
-  // Hello1 h (Int c, Hello1 s) {
-  //   return s;
-  // }
+  Int h (Int c, String s) {
+    return 5;
+  }
+  Int h (Int c, Int s) {
+    return 5;
+  }
+  Int h (Int c, Hello s) {
+    return 5;
+  }
+  Hello1 h (Int c, Hello1 s) {
+    return s;
+  }
 }
 
 class Hello2 {

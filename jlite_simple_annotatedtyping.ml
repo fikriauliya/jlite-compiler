@@ -20,6 +20,7 @@ let rec compare_params_type (x:var_decl list) (y:var_decl list) =
 		if (List.length x) < (List.length y) 
 		then -1
 		else
+			begin
 			match (x, y) with
 				| ([], []) -> 0
 				| ((xt, xh)::xs, (yt, yh)::ys) -> 
@@ -34,6 +35,8 @@ let rec compare_params_type (x:var_decl list) (y:var_decl list) =
 						println (string_of_jlite_type yt); *)
 						compare xt yt
 					end
+				| _ -> failwith ("\nThis shouldn't be reached\n");
+			end
 
 (* From: https://gist.github.com/23Skidoo/1664038 *)
 let rec remove_dups lst = 
@@ -239,12 +242,12 @@ let rec type_check_var_decl_list
 	in
 		match (check_existances vlst) with
 		| [] -> 
-			match (check_duplicates vlst) with
-			| [] ->  (true,"")
-			| lst -> (false, ("Duplicate variables found: " 
-					^ (string_of_list lst (fun x -> x) ",")))
-		| lst -> (false, ("Undefined types: " 
-				^ (string_of_list lst (fun x -> x) ",")))
+			begin
+				match (check_duplicates vlst) with
+				| [] ->  (true,"")
+				| lst -> (false, ("Duplicate variables found: " ^ (string_of_list lst (fun x -> x) ",")))
+			end
+		| lst -> (false, ("Undefined types: " ^ (string_of_list lst (fun x -> (string_of_jlite_type x)) ",")))
 end
 
 (* Type check a list of method declarations 
@@ -308,6 +311,9 @@ let rec type_check_expr
 	println "type_check_expr";
 	let rec helper e : (jlite_type * jlite_exp) =
 		match e with
+		| TypedExp _ -> 
+			println "Unknown";
+  		(Unknown, e) 
 		| BoolLiteral v -> 
 			println "BoolLiteral";
 			(BoolT, (TypedExp (e, BoolT)))
@@ -369,12 +375,24 @@ let rec type_check_expr
 			  | FieldAccess (e2, v2) -> 
 			  	println ("FieldAccess : " ^ (string_of_jlite_expr e2) ^ " -> " ^ (string_of_var_id v2)); 
 			  	let (t3, e3) = helper e2 in
+			  	begin
 			  	match t3 with
 			  		ObjectT classid -> 
 			  			println ("Class: " ^ classid);
 			  			let found_method = find_method p classid (extract_var_name v2) params_t in
 			  			(TypedExp (FieldAccess (e3, v2), t3), found_method)
-
+			  		| Unknown | VoidT | StringT | BoolT | IntT -> failwith ("\nThis shouldn't be reached\n");
+			  	end
+		  	| ObjectCreate _
+				| MdCall _
+				| BoolLiteral _
+				| IntLiteral _
+				| StringLiteral _
+				| ThisWord _
+				| NullWord _
+				| TypedExp _ 
+				| BinaryExp (_, _, _)
+				| UnaryExp (_, _) -> failwith ("\nThis shouldn't be reached\n");
 			  (* | ObjectCreate class_name -> println "ObjectCreate"; find_method p "Hello1" "w" [IntT]
 			  | MdCall (md, mp) -> println "MdCall"; find_method p "Hello1" "w" [IntT]
 			  (* | BoolLiteral _ -> println "BoolLiteral"; Unknown *)
@@ -428,10 +446,6 @@ let rec type_check_expr
 					println "Unknown type";
 					(Unknown, e1)
 
-  	| _ -> begin
-  		println "Unknown";
-  		(Unknown, e) 
-  	end
 	  in  helper exp
 end
 
@@ -699,7 +713,7 @@ let type_check_jlite_program (p:jlite_program) : jlite_program =
 
 		(* TypeCheck class declarations *)
 		let (retval, errmsg) = (type_check_class_decl_list p classes) in
-		let res = 
+		let _ = 
 			if (retval == false) then
 					failwith ("\n" ^ errmsg ^ "\n")
 			else true 

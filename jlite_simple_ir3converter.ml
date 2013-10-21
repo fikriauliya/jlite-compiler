@@ -6,10 +6,6 @@ let println line = begin
   (* printf "%s\n" line; *)
 end
 
-let println2 line = begin
-  printf "%s\n" line;
-end
-
 let varcount = ref 0 
 let labelcount = ref 0
 let fresh_var () = 
@@ -130,11 +126,11 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
           | Var v -> (jlite_var_id_to_IR3Expr classid v toid3)
           (* OK *)
           | BinaryExp (op,arg1,arg2) -> 
-            println2 "BinaryExp";
-            println2 ("==================================");
-            println2 (string_of_jlite_expr arg1);
-            println2 (string_of_jlite_expr arg2);
-            println2 ("==================================");
+          
+          
+          
+          
+          
 
             let (arg1IR3,vars1,stmts1) = (helper arg1 true true) in
             let arg1Idc3 = (ir3_expr_get_idc3 arg1IR3) in 
@@ -209,23 +205,30 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
             (* let (e1_new,e1_vars,e1_stmts) = helper e1 true true in *)
             let (e1_new,e1_vars,e1_stmts) = match e1 with
               Var v -> (Idc3Expr (Var3 "this"), [], [])
-              | TypedExp (e, _) -> match e with
-                FieldAccess (e1, v2) -> begin
-                helper e1 true true
-              end
+              | TypedExp (e, _) -> begin
+                match e with
+                  FieldAccess (e1, v2) -> begin
+                    helper e1 true true
+                  end
+                  | _ -> failwith ("\nThis shouldn't be reached\n");
+                end
+              | _ -> failwith ("\nThis shouldn't be reached\n");
             in
 
             let mtd_class_name = match e1 with
               Var v -> classid
               | TypedExp (e, t) -> string_of_jlite_type t
+              | _ -> failwith ("\nThis shouldn't be reached\n");
             in
 
             let mtd_name = match e1 with
               Var v ->  extract_var_name v
-              | TypedExp (e, _) -> match e with
-                FieldAccess (e2, v2) -> begin
-                extract_var_name v2
-              end
+              | TypedExp (e, _) -> begin
+                match e with
+                  FieldAccess (e2, v2) -> extract_var_name v2
+                  | _ -> failwith ("\nThis shouldn't be reached\n");
+                end
+              | _ -> failwith ("\nThis shouldn't be reached\n");
             in
 
             let method_signature = 
@@ -237,6 +240,7 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
                 (fun (accum_params: string) x -> 
                   match x with
                     TypedExp (e, t) -> accum_params ^ "_" ^ (string_of_jlite_type t)
+                    | _ -> failwith ("\nThis shouldn't be reached\n");
                 ) (mtd_class_name ^ "_" ^ mtd_name) params
             in
 
@@ -273,6 +277,7 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
           | NullWord -> 
             let new_expr = Idc3Expr (Var3 "null") in
             (ir3_expr_to_id3 new_expr t [] [] false)
+          | _ -> failwith ("\nThis shouldn't be reached\n");
         end
       | Var v -> (jlite_var_id_to_IR3Expr classid v toid3)
       (* | FieldAccess (e, vid) -> begin 
@@ -317,6 +322,7 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
                 AssignFieldStmt3 (FieldAccess3 ("this",id1), expr3)
               | TypedVarId (id1,_,2) | SimpleVarId id1 -> 
                 (AssignStmt3 (id1, expr3))
+              | _ -> failwith ("\nThis shouldn't be reached\n");
           in (exprvars, exprstmts@[assignIR3])
         end
         | AssignFieldStmt (e1, e2) -> begin
@@ -368,7 +374,7 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
           (exprvars, exprstmts @ [print_ir3])
         end
         | MdCallStmt (e) -> begin
-          let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e true true) in 
+          let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e false true) in 
           let md_call_ir3 = (MdCallStmt3 (expr3)) in 
           (exprvars, exprstmts @ [md_call_ir3])
         end

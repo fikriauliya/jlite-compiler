@@ -1,0 +1,181 @@
+Parsing...
+ex1.java
+
+======= JLite Program =======
+
+class Main{
+  void main(Int i,Int a,Int b,Int d){
+    Int t1;
+    Int t2;
+    Compute help;
+    help=new Compute();
+    t1=[[help.addSquares(a,b)],[help.square(i)]](+);
+    t2=[help.square(d)];
+    If([t2,t1](>))
+    {
+      println("Square of d larger than sum of squares");
+    }
+    else
+    {
+      println("Square of d larger than sum of squares");
+    }
+  }
+
+} 
+
+class Compute{
+  Int chachedValue;
+  Bool computedSquares;
+
+  Int square(Int a){
+    Return [a,a](*);
+  }
+
+
+  Int add(Int a,Int b){
+    Return [a,b](+);
+  }
+
+
+  Int addSquares(Int a,Int b){
+    If(computedSquares)
+    {
+      Return chachedValue;
+    }
+    else
+    {
+      computedSquares=true;
+      Return [add([square(a)],[square(b)])];
+    }
+  }
+
+}
+
+======= End of JLite Program =======
+
+
+======= JLite Program =======
+
+class Main{
+  void main(Int i,Int a,Int b,Int d){
+    Int t1;
+    Int t2;
+    Compute help;
+    (help:Compute,2)=new Compute():Compute;
+    (t1:Int,2)=[[(help:Compute,2):Compute.addSquares:Compute((a:Int,2):Int,(b:Int,2):Int)]:Int,[(help:Compute,2):Compute.square:Compute((i:Int,2):Int)]:Int](+):Int;
+    (t2:Int,2)=[(help:Compute,2):Compute.square:Compute((d:Int,2):Int)]:Int;
+    If([(t2:Int,2):Int,(t1:Int,2):Int](>):Bool)
+    {
+      println("Square of d larger than sum of squares":String);
+    }
+    else
+    {
+      println("Square of d larger than sum of squares":String);
+    }
+  }
+
+} 
+
+class Compute{
+  Int chachedValue;
+  Bool computedSquares;
+
+  Int square(Int a){
+    Return [(a:Int,2):Int,(a:Int,2):Int](*):Int;
+  }
+
+
+  Int add(Int a,Int b){
+    Return [(a:Int,2):Int,(b:Int,2):Int](+):Int;
+  }
+
+
+  Int addSquares(Int a,Int b){
+    If((computedSquares:Bool,1):Bool)
+    {
+      Return (chachedValue:Int,1):Int;
+    }
+    else
+    {
+      (computedSquares:Bool,1)=true:Bool;
+      Return [add([square((a:Int,2):Int)]:Int,[square((b:Int,2):Int)]:Int)]:Int;
+    }
+  }
+
+}
+
+======= End of JLite Program =======
+
+======= IR3 Program =======
+
+======= CData3 ======= 
+
+class Main{
+}
+
+class Compute{
+  Int chachedValue;
+  Bool computedSquares;
+}
+
+=======  CMtd3 ======= 
+
+void Main_main_Int_Int_Int_Int(Main this,Int i,Int a,Int b,Int d){
+  Int t1;
+  Int t2;
+  Compute help;
+  Int _t1;
+  Int _t2;
+  Bool _t3;
+  String _t4;
+  String _t5;
+  help=new Compute();
+  _t1=[Compute_addSquares_Int_Int(help,a,b)];
+  _t2=[Compute_square_Int(help,i)];
+  t1=[_t1,_t2](+);
+  t2=[Compute_square_Int(help,d)];
+  _t3=[t2,t1](>);
+  If([_t3,false](==)) goto 1;
+  _t4="Square of d larger than sum of squares";
+  println(_t4);
+  goto 2;
+ Label 1:
+  _t5="Square of d larger than sum of squares";
+  println(_t5);
+ Label 2:
+}
+
+Int Compute_square_Int(Compute this,Int a){
+  Int _t12;
+  _t12=[a,a](*);
+  Return _t12;
+}
+
+Int Compute_add_Int_Int(Compute this,Int a,Int b){
+  Int _t11;
+  _t11=[a,b](+);
+  Return _t11;
+}
+
+Int Compute_addSquares_Int_Int(Compute this,Int a,Int b){
+  Bool _t6;
+  Int _t7;
+  Int _t8;
+  Int _t9;
+  Int _t10;
+  _t6=this.computedSquares;
+  If([_t6,false](==)) goto 3;
+  _t7=this.chachedValue;
+  Return _t7;
+  goto 4;
+ Label 3:
+  this.computedSquares=true;
+  _t8=[Compute_square_Int(this,a)];
+  _t9=[Compute_square_Int(this,b)];
+  _t10=[Compute_add_Int_Int(this,_t8,_t9)];
+  Return _t10;
+ Label 4:
+}
+
+======= End of IR3 Program =======
+
