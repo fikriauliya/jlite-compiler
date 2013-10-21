@@ -288,7 +288,7 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
           (exprvars, exprstmts @ [read_ir3])
         end
         | PrintStmt (e) -> begin
-          let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e false false) in 
+          let (expr3,exprvars,exprstmts) = (jlite_expr_to_IR3Expr classid e true true) in 
           let print_ir3 = (PrintStmt3 (ir3_expr_get_idc3 expr3)) in 
           (exprvars, exprstmts @ [print_ir3])
         end
