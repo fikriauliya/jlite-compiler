@@ -97,17 +97,17 @@ class Test {
   //   return ret;
   // }
 
-  // Int m12() {
-  //   Int a ;
+  Int m12() {
+    Int a ;
 
-  //   // a = 2;
-  //   if (1 > 3) {
-  //     a = 3;
-  //   } else {
-  //     a = 4;
-  //   }
-  //   return 4;
-  // }
+    // a = 2;
+    if (1 > 3) {
+      a = 3;
+    } else {
+      a = 4;
+    }
+    return 4;
+  }
 
   // Int m13() {
   //   Int i;

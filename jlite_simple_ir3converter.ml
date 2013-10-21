@@ -256,15 +256,18 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
         | IfStmt (e, stmt_true, stmt_false) -> begin
           let (expr3, exprvars, exprstmts) = (jlite_expr_to_IR3Expr classid e true true) in
 
-          let (vars_1, ir3_stmt1) = jlite_stmts_to_IR3_Stmts classid mthd stmt_false in
-          let label_true_num = (new_label()) in
+          let label_false_num = (new_label()) in
           let label_end_num = (new_label()) in
+
+          let (vars_1, ir3_stmt1) = jlite_stmts_to_IR3_Stmts classid mthd stmt_true in
           let goto_end = (GoTo3 label_end_num) in
-          let label_true = (Label3 label_true_num) in
-          let (vars_2, ir3_stmt2) = jlite_stmts_to_IR3_Stmts classid mthd stmt_true in
+          let label_false = (Label3 label_false_num) in
+          let (vars_2, ir3_stmt2) = jlite_stmts_to_IR3_Stmts classid mthd stmt_false in
           let label_end = (Label3 label_end_num) in
 
-          (exprvars @ vars_1 @ vars_2, exprstmts @ [IfStmt3 (expr3, label_true_num)] @ ir3_stmt1 @ [goto_end] @ [label_true] @ ir3_stmt2 @ [label_end])
+          (exprvars @ vars_1 @ vars_2, exprstmts @ 
+            [IfStmt3 (BinaryExp3 ((RelationalOp "=="), (ir3_expr_get_idc3 expr3), (BoolLiteral3 false)), label_false_num)] 
+            @ ir3_stmt1 @ [goto_end] @ [label_false] @ ir3_stmt2 @ [label_end])
         end
         | WhileStmt (e, stmt_true) -> begin
           let label_begin_num = (new_label()) in
