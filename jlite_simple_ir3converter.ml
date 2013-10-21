@@ -271,19 +271,18 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
         end
         | WhileStmt (e, stmt_true) -> begin
           let label_begin_num = (new_label()) in
-          let label_true_num = (new_label()) in
           let label_end_num = (new_label()) in
 
           let label_begin = (Label3 label_begin_num) in
           let (expr3, exprvars, exprstmts) = (jlite_expr_to_IR3Expr classid e true true) in
-          let goto_end = (GoTo3 label_end_num) in
           
-          let label_true = (Label3 label_true_num) in
           let (vars_1, ir3_stmt1) = jlite_stmts_to_IR3_Stmts classid mthd stmt_true in
           let goto_begin = (GoTo3 label_begin_num) in
           let label_end = (Label3 label_end_num) in
 
-          (exprvars @ vars_1, [label_begin] @ exprstmts @ [IfStmt3 (expr3, label_true_num)] @ [goto_end] @ [label_true] @ ir3_stmt1 @ [goto_begin] @ [label_end])
+          (exprvars @ vars_1, [label_begin] @ exprstmts @ 
+            [IfStmt3 (BinaryExp3 ((RelationalOp "=="), (ir3_expr_get_idc3 expr3), (BoolLiteral3 false)), label_end_num)] 
+          @ ir3_stmt1 @ [goto_begin] @ [label_end])
         end
         | ReadStmt vid -> begin
           let (expr3, exprvars, exprstmts) = (jlite_var_id_to_IR3Expr classid vid true) in

@@ -109,19 +109,19 @@ class Test {
     return 4;
   }
 
-  // Int m13() {
-  //   Int i;
-  //   i = 0;
-  //   while (i < 10) {
-  //     if (i == 9) {
-  //       return 9;
-  //     } 
-  //     else {
-  //       i = i + 1;
-  //     }
-  //   }
-  //   return 11;
-  // }
+  Int m13() {
+    Int i;
+    i = 0;
+    while (i < 10) {
+      if (i == 9) {
+        return 9;
+      } 
+      else {
+        i = i + 1;
+      }
+    }
+    return 11;
+  }
 
   // Int m14() {
   //   Int a;
