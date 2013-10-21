@@ -1,0 +1,162 @@
+1) Environment used:
+- MacOS X 10.8.4
+- OCaml 4.00.1
+
+2) How to run?
+
+Compile:
+./make.sh
+
+Run:
+./as2 simple_input.java
+./as2 simple_input2.java
+./as2 simple_input3.java
+./as2 simple_input4.java
+
+3) Short circuit checking
+
+====================================================
+  return ((a > b) && (b > c));
+
+  becomes
+
+  ...
+  _t1=this.a;
+  _t2=this.b;
+  _t3=[_t1,_t2](>);
+  If([_t3,false](==)) goto 1;
+  _t5=this.b;
+  _t6=this.c;
+  _t7=[_t5,_t6](>);
+  _t4=_t7;
+  goto 2;
+ Label 1:
+  _t4=false;
+ Label 2:
+  _t8=_t4;
+  Return _t8;
+
+====================================================
+  return ((a > b) || (b > c));
+
+  becomes
+
+  _t1=this.a;
+  _t2=this.b;
+  _t3=[_t1,_t2](>);
+  If([_t3,true](==)) goto 1;
+  _t5=this.b;
+  _t6=this.c;
+  _t7=[_t5,_t6](>);
+  _t4=_t7;
+  goto 2;
+ Label 1:
+  _t4=true;
+ Label 2:
+  _t8=_t4;
+  Return _t8;
+====================================================
+
+4) Method naming
+Translated method name = <class_name>_<method name>_<parameter_type>*(<class_name> this, <parameter>*)
+If the parameter is empty, <parameter_type> is set to "void"
+If there are more than 1 parameter, each <parameter_type> is concatenated by "_" character:
+By following that rule, we can avoid method naming clash.
+
+e.g.
+
+====================================================
+
+class Test {
+  Int method1() {
+    ...
+  }
+}
+
+becomes =>
+
+Int Test_method1_void(Test this) {
+  ...
+}
+
+====================================================
+
+class Test {}
+  Int method_naming_test(Int a, String b, Bool c) {
+    ...
+  }
+}
+
+becomes =>
+
+Int Test_Method1_Int_String_Bool(Test this,Int a,String b,Bool c) {
+  ...
+}
+
+====================================================
+
+5) If statetement logic:
+The expression for if condition checking is negated in the translated code:
+
+====================================================
+  if (a > b) {
+    return a;
+  } else {
+    a = b;
+  }
+  return a;
+====================================================
+
+is translated into:
+
+====================================================
+  _t1=[a,b](>);
+  If([_t1,false](==)) goto 1;
+  Return a;
+  goto 2;
+ Label 1:
+  a=b;
+ Label 2:
+  Return a;
+
+====================================================
+
+6) While statement logic
+
+====================================================
+  while (a > b) {
+    if (a == 100) {
+      return a;
+    } else {
+      a = a + 2;
+    }
+  }
+  return a;
+====================================================
+
+is translated into:
+
+====================================================
+ Label 1:
+  _t1=[a,b](>);
+  If([_t1,false](==)) goto 2;
+  _t2=100;
+  _t3=[a,_t2](==);
+  If([_t3,false](==)) goto 3;
+  Return a;
+  goto 4;
+ Label 3:
+  _t4=2;
+  a=[a,_t4](+);
+ Label 4:
+  goto 1;
+ Label 2:
+  Return a;
+====================================================
+
+7) Method overloading assumpsion:
+I assume that method is overloaded if the paramater types are different.
+I allows overloaded methods to return different data type
+
+Pahlevi Fikri Auliya
+A0096034H

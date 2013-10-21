@@ -103,6 +103,26 @@ class Hello1{
     Return 0;
   }
 
+
+  Int h(Int c,String s){
+    Return 5;
+  }
+
+
+  Int h(Int c,Int s){
+    Return 5;
+  }
+
+
+  Int h(Int c,Hello s){
+    Return 5;
+  }
+
+
+  Hello1 h(Int c,Hello1 s){
+    Return s;
+  }
+
 }
 class Hello2{
 
@@ -289,6 +309,26 @@ class Hello1{
 
   Int w(Int a){
     Return 0:Int;
+  }
+
+
+  Int h(Int c,String s){
+    Return 5:Int;
+  }
+
+
+  Int h(Int c,Int s){
+    Return 5:Int;
+  }
+
+
+  Int h(Int c,Hello s){
+    Return 5:Int;
+  }
+
+
+  Hello1 h(Int c,Hello1 s){
+    Return (s:Hello1,2):Hello1;
   }
 
 }
@@ -510,26 +550,26 @@ Int Hello1_h_Int(Hello1 this,Int c){
   Hello d;
   Hello s;
   Int f;
-  Int _t25;
-  Int _t26;
-  Int _t27;
   Int _t28;
   Int _t29;
   Int _t30;
   Int _t31;
   Int _t32;
+  Int _t33;
+  Int _t34;
+  Int _t35;
   readln(f);
-  _t25=1;
-  _t26=[f,_t25](+);
-  _t27=3;
-  _t28=[_t26,_t27](+);
-  println(_t28);
-  _t29=2;
-  _t30=(-)[_t29];
-  println(_t30);
-  _t31=4;
-  _t32=[Hello1_w_Int(this,_t31)];
-  Return _t32;
+  _t28=1;
+  _t29=[f,_t28](+);
+  _t30=3;
+  _t31=[_t29,_t30](+);
+  println(_t31);
+  _t32=2;
+  _t33=(-)[_t32];
+  println(_t33);
+  _t34=4;
+  _t35=[Hello1_w_Int(this,_t34)];
+  Return _t35;
 }
 
 Hello Hello1_w_void(Hello1 this){
@@ -538,9 +578,31 @@ Hello Hello1_w_void(Hello1 this){
 }
 
 Int Hello1_w_Int(Hello1 this,Int a){
+  Int _t27;
+  _t27=0;
+  Return _t27;
+}
+
+Int Hello1_h_Int_String(Hello1 this,Int c,String s){
+  Int _t26;
+  _t26=5;
+  Return _t26;
+}
+
+Int Hello1_h_Int_Int(Hello1 this,Int c,Int s){
+  Int _t25;
+  _t25=5;
+  Return _t25;
+}
+
+Int Hello1_h_Int_Hello(Hello1 this,Int c,Hello s){
   Int _t24;
-  _t24=0;
+  _t24=5;
   Return _t24;
+}
+
+Hello1 Hello1_h_Int_Hello1(Hello1 this,Int c,Hello1 s){
+  Return s;
 }
 
 Int Hello2_m2_void(Hello2 this){
@@ -554,81 +616,79 @@ Int Hello2_m2_void(Hello2 this){
 }
 
 void Hello2_m3_void(Hello2 this){
-  Int _t48;
-  _t48=[Hello2_m2_void(this)];
-  _t48;
+  [Hello2_m2_void(this)];
   Return;
 }
 
 void Hello2_m4_void(Hello2 this){
   Hello w;
-  Int _t47;
-  _t47=2;
-  w.c=_t47;
+  Int _t50;
+  _t50=2;
+  w.c=_t50;
   Return;
 }
 
 Int Hello2_m5_void(Hello2 this){
   Int a;
   Int b;
-  Bool _t42;
-  Bool _t43;
-  Int _t44;
-  Int _t45;
-  Int _t46;
+  Bool _t45;
+  Bool _t46;
+  Int _t47;
+  Int _t48;
+  Int _t49;
   a=2;
   b=3;
-  _t42=[a,b](==);
-  If([_t42,false](==)) goto 5;
+  _t45=[a,b](==);
+  If([_t45,false](==)) goto 5;
   a=3;
   goto 6;
  Label 5:
   b=2;
  Label 6:
-  _t43=[a,b](>=);
-  If([_t43,false](==)) goto 7;
-  _t44=3;
-  _t45=[a,_t44](+);
-  Return _t45;
+  _t46=[a,b](>=);
+  If([_t46,false](==)) goto 7;
+  _t47=3;
+  _t48=[a,_t47](+);
+  Return _t48;
   goto 8;
  Label 7:
-  _t46=2;
-  Return _t46;
+  _t49=2;
+  Return _t49;
  Label 8:
 }
 
 Int Hello2_m6_void(Hello2 this){
   Int d;
-  Int _t33;
-  Int _t34;
-  Bool _t35;
   Int _t36;
   Int _t37;
   Bool _t38;
   Int _t39;
   Int _t40;
-  Int _t41;
+  Bool _t41;
+  Int _t42;
+  Int _t43;
+  Int _t44;
  Label 1:
-  _t33=1;
-  _t34=1;
-  _t35=[_t33,_t34](==);
-  If([_t35,false](==)) goto 2;
-  _t36=2;
-  _t37=2;
+  _t36=1;
+  _t37=1;
   _t38=[_t36,_t37](==);
-  If([_t38,false](==)) goto 3;
-  _t39=3;
-  Return _t39;
+  If([_t38,false](==)) goto 2;
+  _t39=2;
+  _t40=2;
+  _t41=[_t39,_t40](==);
+  If([_t41,false](==)) goto 3;
+  _t42=3;
+  Return _t42;
   goto 4;
  Label 3:
   d=3;
  Label 4:
-  _t40=3;
-  Return _t40;
+  _t43=3;
+  Return _t43;
   goto 1;
  Label 2:
-  _t41=4;
-  Return _t41;
+  _t44=4;
+  Return _t44;
 }
 
 String ScopeTest_m1_String(ScopeTest this,String a){
@@ -637,9 +697,9 @@ String ScopeTest_m1_String(ScopeTest this,String a){
 
 Int ScopeTest_m2_Int(ScopeTest this,Int a){
   String b;
-  Int _t49;
-  _t49=[a,a](+);
-  Return _t49;
+  Int _t51;
+  _t51=[a,a](+);
+  Return _t51;
 }
 
 ======= End of IR3 Program =======
