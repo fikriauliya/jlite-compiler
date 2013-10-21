@@ -22,6 +22,8 @@ let fresh_label () =
 let new_varname() = "_t" ^ fresh_var()
 let new_label() = fresh_label()
 
+(* let method_maps: ((string, string) Hashtbl.t) = (Hashtbl.create 100) *)
+
 (* let id3_of_class_name = string :
 let id3_of_jlite_op =  :
 let id3_of_jlite_type = :
@@ -99,7 +101,6 @@ let jlite_var_decl_lst_to_ID3 (cvars: var_decl list): var_decl3 list = begin
   ) cvars
 end
 
-
 (* If you look at the specifications of the Jlite and IR3 language you will see that 
 expressions need to be reduced to different forms. 
 Some Jlite exp willl be transformed to an exp3, others to an idc3 such as the operands for a binary expression, 
@@ -165,6 +166,11 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
               end
             in
 
+            let mtd_class_name = match e1 with
+              Var v -> classid
+              | TypedExp (e, t) -> string_of_jlite_type t
+            in
+
             let mtd_name = match e1 with
               Var v ->  extract_var_name v
               | TypedExp (e, _) -> match e with
@@ -172,6 +178,24 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
                 extract_var_name v2
               end
             in
+
+            let method_signature = 
+              if (List.length params) == 0
+              then
+                (mtd_class_name ^ "_" ^ mtd_name ^ "_void")
+              else
+                List.fold_left 
+                (fun (accum_params: string) x -> 
+                  match x with
+                    TypedExp (e, t) -> accum_params ^ "_" ^ (string_of_jlite_type t)
+                ) (mtd_class_name ^ "_" ^ mtd_name) params
+            in
+
+            println ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+            println method_signature;
+
+            (* let mtd_name_converted = Hashtbl.find method_maps method_signature in
+            println mtd_name_converted; *)
             (* let (new_ir3, new_vars, new_stmts, mtd_name) = match e1 with
               Var v ->  (Idc3Expr (Var3 "this"), [], [], (extract_var_name v))
               | FieldAccess (e2, v2) -> begin
@@ -189,7 +213,7 @@ let rec jlite_expr_to_IR3Expr (classid: class_name) (jexp:jlite_exp) (toidc3:boo
                 (accum_idc3 @ [(ir3_expr_get_idc3 new_ir3)], accum_vars @ new_vars, accum_stmts @ new_stmts)
               ) ([],[],[]) new_args in
 
-            let new_expr = MdCall3 (mtd_name, (ir3_expr_get_idc3 e1_new)::new_idc3s) in
+            let new_expr = MdCall3 (method_signature, (ir3_expr_get_idc3 e1_new)::new_idc3s) in
             (ir3_expr_to_id3 new_expr t (e1_vars @ new_vars) (e1_stmts @ new_stmts) toidc3)
 
           | ObjectCreate v -> begin
@@ -308,9 +332,27 @@ let rec jlite_stmts_to_IR3_Stmts (classid: class_name) (mthd: md_decl) (stmtlst:
 let jlite_md_decl_to_IR3 cname m counter : md_decl3 = begin
   println "========================================================";
   println (cname ^ " " ^ (string_of_var_id m.ir3id));
+
+  let params_id3 = (jlite_var_decl_lst_to_ID3 m.params) in
+  let method_signature = 
+    if List.length params_id3 == 0 
+    then
+      (cname ^ "_" ^ (string_of_var_id m.ir3id) ^ "_void")
+    else
+      List.fold_left 
+      (fun (accum_params: string) ((new_param_t, new_param_id3): var_decl3) ->
+        accum_params ^ "_" ^ (string_of_jlite_type new_param_t)
+      ) (cname ^ "_" ^ (string_of_var_id m.ir3id)) params_id3 in
+  (* let new_method_name = (cname ^ "_" ^ (string_of_var_id m.ir3id) ^ "_" ^ (string_of_int counter)) in *)
+
+  println "********************************************************************";
+  println method_signature;
+  (* println new_method_name; *)
+  (* Hashtbl.add method_maps method_signature new_method_name; *)
+
   let (new_vars,new_stmts) = (jlite_stmts_to_IR3_Stmts cname m m.stmts)
   in {   
-    id3= cname ^ "_" ^ (string_of_var_id m.ir3id) ^ "_" ^ (string_of_int counter);
+    id3= method_signature;
     rettype3=m.rettype; 
     params3=(ObjectT cname, "this") :: (jlite_var_decl_lst_to_ID3 m.params);
     localvars3= (jlite_var_decl_lst_to_ID3 m.localvars) @ new_vars; 
